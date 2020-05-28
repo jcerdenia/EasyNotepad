@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Easy Notepad</string>
+    <string name="category">Category</string>
+    <string name="title">Title</string>
+    <string name="write_note_here">Notes</string>
+    <string name="created_withDate">Created: %s</string>
+    <string name="last_updated_withDate">Last updated: %s</string>
+    <string name="no_title">Untitled</string>
+    <string name="note_list_info">%1$s / %2$s</string>
+    <string name="no_category">Uncategorized</string>
+    <string name="sort">Sort</string>
+    <string name="sort_by">Sort by</string>
+    <string name="last_updated">Last updated</string>
+    <string name="date_created">Date created</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="edit">Edit</string>
+</resources>
