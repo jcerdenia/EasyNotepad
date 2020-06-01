@@ -2,11 +2,6 @@ package com.joshuacerdenia.android.easynotepad
 
 import android.content.Context
 
-const val LAST_UPDATED = "last_updated"
-const val DATE_CREATED = "date_created"
-const val CATEGORY = "category"
-const val TITLE = "title"
-
 private const val KEY_SORT_PREF: String = "key_sort_pref"
 
 object NotePreferences {

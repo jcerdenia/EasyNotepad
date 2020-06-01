@@ -8,8 +8,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/note_category"
+        android:maxLength="45"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
@@ -30,7 +31,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/note_category"
-        tools:text="Title" />
+        tools:text="Title"/>
 
     <EditText
         android:id="@+id/note_body"
@@ -44,7 +45,7 @@
         app:layout_constraintBottom_toTopOf="@+id/note_last_modified"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/note_title" />
+        app:layout_constraintTop_toBottomOf="@+id/note_title"/>
 
     <TextView
         android:id="@+id/note_last_modified"

@@ -9,12 +9,15 @@ import java.util.*
 class NoteViewModel : ViewModel() {
     
     private val noteRepository = NoteRepository.get()
-    private val noteIDLiveData = MutableLiveData<UUID>() // Stores and publishes Note ID pulled from database
+    private val noteIDLiveData = MutableLiveData<UUID>() // Stores and publishes noteID from DB
 
     var noteLiveData: LiveData<Note?> =
-        Transformations.switchMap(noteIDLiveData) { // Changing note ID triggers new database query
+        Transformations.switchMap(noteIDLiveData) { // Changing noteID triggers new DB query
                 noteID -> noteRepository.getNote(noteID)
         }
+
+    var noteBeforeChanged: Note = Note()
+    var notYetCopied: Boolean = true
 
     fun loadNote(noteID: UUID) {
         noteIDLiveData.value = noteID

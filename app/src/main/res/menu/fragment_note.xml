@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu android:id="@+id/menu"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:context="com.joshuacerdenia.android.easynotepad.MainActivity"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/delete"
+        app:showAsAction="ifRoom"/>
+
+</menu>

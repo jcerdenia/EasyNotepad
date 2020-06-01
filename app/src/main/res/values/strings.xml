@@ -5,7 +5,7 @@
     <string name="write_note_here">Notes</string>
     <string name="created_withDate">Created: %s</string>
     <string name="last_updated_withDate">Last updated: %s</string>
-    <string name="no_title">Untitled</string>
+    <string name="no_title">-</string>
     <string name="note_list_info">%1$s / %2$s</string>
     <string name="no_category">Uncategorized</string>
     <string name="sort">Sort</string>
@@ -15,4 +15,12 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="edit">Edit</string>
+    <string name="confirm_delete">"Delete %s? "</string>
+    <string name="search">Search</string>
+    <string name="no_undo">This cannot be undone.</string>
+    <string name="delete">Delete</string>
+    <string name="edit_note">Edit Note</string>
+    <string name="nothing_selected">Nothing selected</string>
+    <string name="send_note">Send note via</string>
+    <string name="empty">There are no notes.</string>
 </resources>

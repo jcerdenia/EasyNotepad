@@ -1,5 +1,6 @@
 package com.joshuacerdenia.android.easynotepad
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class NoteListViewModel : ViewModel() {
@@ -7,9 +8,16 @@ class NoteListViewModel : ViewModel() {
     private val noteRepository = NoteRepository.get()
     val noteListLiveData = noteRepository.getNotes()
 
-    var editMode = false
+    var editMode: MutableLiveData<Boolean> = MutableLiveData()
+    var allSelected: MutableLiveData<Boolean> = MutableLiveData()
+    var allDeselected: MutableLiveData<Boolean> = MutableLiveData()
     var editables = mutableListOf<Note>()
-    var selectAll = true
+
+    init {
+        editMode.value = false
+        allSelected.value = false
+        allDeselected.value = false
+    }
 
     fun addNote(note: Note) {
         noteRepository.addNote(note)
@@ -19,8 +27,8 @@ class NoteListViewModel : ViewModel() {
         noteRepository.deleteNote(note)
     }
 
-    // for editing categories
+    /* For Future Implementation? Edit Categories
     fun saveNote(note: Note) {
         noteRepository.updateNote(note)
-    }
+    } */
 }

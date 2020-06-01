@@ -9,7 +9,6 @@
 
     <TextView
         android:id="@+id/note_title"
-        android:animateLayoutChanges="true"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -17,11 +16,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/edit_checkbox"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Title" />
+        tools:text="Title"/>
 
     <TextView
         android:id="@+id/note_info"
-        android:animateLayoutChanges="true"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxLength="60"
@@ -32,7 +30,6 @@
 
     <CheckBox
         android:id="@+id/edit_checkbox"
-        android:animateLayoutChanges="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"

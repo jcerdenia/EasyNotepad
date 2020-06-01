@@ -1,16 +1,18 @@
 package com.joshuacerdenia.android.easynotepad
 
+import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.RadioButton
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+
+const val LAST_UPDATED = "Last updated"
+const val DATE_CREATED = "Date created"
+const val CATEGORY = "Category"
+const val TITLE = "Title"
 
 private const val ARG_SORT_PREF = "arg_sort_pref"
 
-class NoteListSorterFragment : BottomSheetDialogFragment() {
+class NoteListSorterFragment : DialogFragment() {
 
     companion object {
         fun newInstance(sortPreference: String): NoteListSorterFragment {
@@ -23,86 +25,50 @@ class NoteListSorterFragment : BottomSheetDialogFragment() {
         }
     }
 
-    /*
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
+        val options = arrayOf(LAST_UPDATED, DATE_CREATED, CATEGORY, TITLE)
+
+        val optionsMap = mutableMapOf<String, Int>()
+        var i = 0
+        for (option in options) {
+            optionsMap[option] = i
+            i += 1
+        }
+
+        val sortPreference = arguments?.getString(ARG_SORT_PREF) as String
+        val currentChoice = optionsMap[sortPreference]
+
         val dialogBuilder = AlertDialog.Builder(context!!)
-        dialogBuilder
-            .setMessage(R.string.sort_by)
+        dialogBuilder.setTitle("Sort by")
             .setCancelable(true)
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+            .setSingleChoiceItems(options, currentChoice!!) { dialog, choice ->
+                val newChoice: String = getKeyFromMap(optionsMap, choice)
+                targetFragment?.let { fragment ->
+                    (fragment as Callbacks).onSortPreferenceSelected(newChoice)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
 
         val dialog = dialogBuilder.create()
         dialog.show()
 
         return dialog
-        }
-     */
-
-    private lateinit var lastUpdatedButton: RadioButton
-    private lateinit var dateCreatedButton: RadioButton
-    private lateinit var categoryButton: RadioButton
-    private lateinit var titleButton: RadioButton
-    private lateinit var okButton: Button
-    private lateinit var cancelButton: Button
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view: View =
-            inflater.inflate(R.layout.fragment_note_list_sorter, container, false)
-
-        lastUpdatedButton = view.findViewById(R.id.radioButton_sortBy_lastUpdated)
-        dateCreatedButton = view.findViewById(R.id.radioButton_sortBy_dateCreated)
-        categoryButton = view.findViewById(R.id.radioButton_sortBy_category)
-        titleButton = view.findViewById(R.id.radioButton_sortBy_title)
-        okButton = view.findViewById(R.id.ok_button)
-        cancelButton = view.findViewById(R.id.cancel_button)
-
-        return view
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        var sortPreference = arguments?.getString(ARG_SORT_PREF)
-
-        when (sortPreference) {
-            LAST_UPDATED -> lastUpdatedButton.isChecked = true
-            DATE_CREATED -> dateCreatedButton.isChecked = true
-            CATEGORY -> categoryButton.isChecked = true
-            TITLE -> titleButton.isChecked = true
-        }
-
-        lastUpdatedButton.setOnClickListener {
-            sortPreference = LAST_UPDATED
-        }
-
-        dateCreatedButton.setOnClickListener {
-            sortPreference = DATE_CREATED
-        }
-
-        categoryButton.setOnClickListener {
-            sortPreference = CATEGORY
-        }
-
-        titleButton.setOnClickListener {
-            sortPreference = TITLE
-        }
-
-        okButton.setOnClickListener() {
-            targetFragment?.let { fragment ->
-                (fragment as Callbacks).onSortPreferenceSelected(sortPreference!!)
+    private fun getKeyFromMap(map: Map<String, Int>, value: Int): String {
+        val list: List<Pair<String, Int>> = map.toList()
+        lateinit var key: String
+        for (pair in list) {
+            if (pair.second == value) {
+                key = pair.first
             }
-            dismiss()
         }
-
-        cancelButton.setOnClickListener() {
-            dismiss()
-        }
+        return key
     }
 
     interface Callbacks {
