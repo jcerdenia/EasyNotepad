@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu android:id="@+id/menu"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:context="com.joshuacerdenia.android.easynotepad.MainActivity"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- FOR FUTURE IMPLEMENTATION
+    <item
+        android:id="@+id/menu_undo"
+        android:icon="@drawable/ic_undo"
+        android:title="@string/undo"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_save"
+        android:icon="@drawable/ic_save"
+        android:title="@string/save"
+        app:showAsAction="ifRoom"/>
+    -->
+
     <item
         android:id="@+id/menu_share"
         android:icon="@drawable/ic_share"
-        android:title="@string/edit"
+        android:title="@string/share"
         app:showAsAction="ifRoom"/>
 
     <item

@@ -27,7 +27,7 @@ class NoteListViewModel : ViewModel() {
         noteRepository.deleteNote(note)
     }
 
-    /* For Future Implementation? Edit Categories
+    /** For Future Implementation? Edit Categories
     fun saveNote(note: Note) {
         noteRepository.updateNote(note)
     } */

@@ -1,26 +1,24 @@
 package com.joshuacerdenia.android.easynotepad
 
-import android.net.Uri
 import android.os.Bundle
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
-class MainActivity : AppCompatActivity(),
-    NoteListFragment.Callbacks,
-    NoteFragment.Callbacks {
-
-    private var actionBar: ActionBar? = null
+class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        actionBar = this.supportActionBar!!
-
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+        val fragment = if (intent?.type?.startsWith("text/plain") == true) {
+            NoteListFragment.newInstance(true)
+        } else {
+            NoteListFragment.newInstance(false)
+        }
+
         if (currentFragment == null) {
-            val fragment = NoteListFragment.newInstance()
             supportFragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, fragment)
@@ -29,10 +27,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onNoteSelected(noteID: UUID,
-                                categories: MutableSet<String>,
                                 searchTerm: String?
     ) {
-        val fragment = NoteFragment.newInstance(noteID, categories, searchTerm)
+        val fragment = NoteFragment.newInstance(noteID, searchTerm)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, fragment)
@@ -40,25 +37,16 @@ class MainActivity : AppCompatActivity(),
             .commit()
     }
 
-    override fun showUpIndicator() {
-        actionBar?.title = getString(R.string.edit_note)
-        actionBar?.setHomeButtonEnabled(true)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-    }
-
-    override fun hideUpIndicator() {
-        actionBar?.title = getString(R.string.app_name)
-        actionBar?.setHomeButtonEnabled(false)
-        actionBar?.setDisplayHomeAsUpEnabled(false)
+    override fun onNoteAddedWithIntent(noteID: UUID) {
+        val fragment = NoteFragment.newInstanceWithIntent(noteID, intent)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .commit()
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
-    }
-
-    override fun onBackPressed() {
-        hideUpIndicator()
-        super.onBackPressed()
     }
 }

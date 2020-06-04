@@ -2,26 +2,27 @@ package com.joshuacerdenia.android.easynotepad
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.joshuacerdenia.android.easynotepad.NotePreferences.getCategories
 import com.joshuacerdenia.android.easynotepad.NotePreferences.getSortPreference
+import com.joshuacerdenia.android.easynotepad.NotePreferences.setCategories
 import com.joshuacerdenia.android.easynotepad.NotePreferences.setSortPreference
 import java.text.DateFormat.*
 import java.util.*
 
-private const val TAG = "NoteListFragment"
+private const val ARG_HAS_INTENT = "arg_has_intent"
 
 fun List<Note>.sortedByLastModified() = this.sortedByDescending{ (_, _, _, _, date) -> date }
 fun List<Note>.sortedByDateCreated() = this.sortedByDescending { (_, _, _, date) -> date }
@@ -33,33 +34,43 @@ class NoteListFragment : Fragment(),
     ConfirmDeleteFragment.Callbacks {
 
     private val fragment = this@NoteListFragment
+    private lateinit var toolbar: Toolbar
+    private lateinit var noteRecyclerView: RecyclerView
+    private var adapter: NoteAdapter? = NoteAdapter()
+
     private val noteListViewModel: NoteListViewModel by lazy {
         ViewModelProvider(this).get(NoteListViewModel::class.java)
     }
-
-    private lateinit var noteRecyclerView: RecyclerView
-    private var adapter: NoteAdapter? = NoteAdapter()
 
     private var callbacks: Callbacks? = null
     private lateinit var sortPreference: String
     private var searchTerm: String? = null
 
     private lateinit var messageWhenEmpty: TextView
+    private lateinit var selectAllCheckBox: CheckBox
+    private lateinit var closeEditButton: ImageButton
     private lateinit var addRemoveButton: FloatingActionButton
-    val categories = mutableSetOf<String>()
+
+    private lateinit var categories: MutableSet<String>
+    private var currentList: List<Note> = listOf()
 
     companion object {
-        fun newInstance(): NoteListFragment {
-            return NoteListFragment()
+        fun newInstance(hasIntent: Boolean): NoteListFragment {
+            val args = Bundle().apply {
+                putBoolean(ARG_HAS_INTENT, hasIntent)
+            }
+            return NoteListFragment().apply {
+                arguments = args
+            }
         }
     }
 
     interface Callbacks {
         fun onNoteSelected(noteID: UUID,
-                           categories: MutableSet<String>,
                            searchTerm: String?
         )
-        fun hideUpIndicator()
+
+        fun onNoteAddedWithIntent(noteID: UUID)
     }
 
     override fun onAttach(context: Context) {
@@ -69,10 +80,9 @@ class NoteListFragment : Fragment(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        callbacks?.hideUpIndicator()
-
         setHasOptionsMenu(true)
         sortPreference = getSortPreference(this.activity!!)
+        categories = getCategories(this.activity!!) as MutableSet
     }
 
     override fun onCreateView(
@@ -82,18 +92,24 @@ class NoteListFragment : Fragment(),
     ): View? {
         val view = inflater.inflate(R.layout.fragment_note_list, container, false)
 
+        toolbar = view.findViewById(R.id.toolbar) as Toolbar
         addRemoveButton = view.findViewById(R.id.add_note_button)
         messageWhenEmpty = view.findViewById(R.id.empty)
+        selectAllCheckBox = view.findViewById(R.id.select_all)
+        closeEditButton = view.findViewById(R.id.close_button)
         noteRecyclerView = view.findViewById(R.id.note_recycler_view)
+
+        (activity as? AppCompatActivity)?.setSupportActionBar(toolbar)
+
         noteRecyclerView.layoutManager = LinearLayoutManager(context)
+        val divider = DividerItemDecoration(
+            noteRecyclerView.context,
+            (noteRecyclerView.layoutManager as LinearLayoutManager).orientation
+        )
+        noteRecyclerView.addItemDecoration(divider)
         noteRecyclerView.adapter = adapter
 
         return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        refreshRecyclerView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -103,16 +119,13 @@ class NoteListFragment : Fragment(),
         val searchItem: MenuItem = menu.findItem(R.id.menu_search)
         val searchView = searchItem.actionView as SearchView
 
-        searchItem.setOnMenuItemClickListener {
-            Log.d(TAG, "search clicked")
-            true
-        }
-
         searchView.apply {
-
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
                 override fun onQueryTextSubmit(query: String?): Boolean {
+                    if (query != null) {
+                        searchNotes(query)
+                    }
+                    searchTerm = query
                     return true
                 }
 
@@ -155,7 +168,16 @@ class NoteListFragment : Fragment(),
         super.onStart()
         if (noteListViewModel.editMode.value == true) {
             enterEditMode()
+            if (noteListViewModel.allSelected.value == true) {
+                selectAllCheckBox.isChecked = true
+            }
         } else {
+            val hasIntent = arguments?.getBoolean(ARG_HAS_INTENT)
+            if (hasIntent == true) {
+                val newNote = Note()
+                noteListViewModel.addNote(newNote)
+                callbacks?.onNoteAddedWithIntent(newNote.id)
+            }
             exitEditMode()
         }
     }
@@ -180,6 +202,7 @@ class NoteListFragment : Fragment(),
     override fun onStop() {
         super.onStop()
         setSortPreference(this.activity!!, sortPreference)
+        setCategories(this.activity!!, categories)
     }
 
     private fun searchNotes(query: String) {
@@ -217,12 +240,14 @@ class NoteListFragment : Fragment(),
 
                     searchTerm = null
 
-                    if (sortedList.isEmpty()) {
-                        messageWhenEmpty.visibility = View.VISIBLE
-                        setHasOptionsMenu(false)
-                    } else {
-                        messageWhenEmpty.visibility = View.GONE
-                        setHasOptionsMenu(true)
+                    if (noteListViewModel.editMode.value == false) {
+                        if (sortedList.isEmpty()) {
+                            messageWhenEmpty.visibility = View.VISIBLE
+                            setHasOptionsMenu(false)
+                        } else {
+                            messageWhenEmpty.visibility = View.GONE
+                            setHasOptionsMenu(true)
+                        }
                     }
                 }
             }
@@ -241,6 +266,35 @@ class NoteListFragment : Fragment(),
 
     private fun enterEditMode() {
         noteListViewModel.editMode.value = true
+        (activity as AppCompatActivity).supportActionBar?.title = null
+        setHasOptionsMenu(false)
+
+
+        closeEditButton.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                exitEditMode()
+            }
+        }
+
+        selectAllCheckBox.apply {
+            visibility = View.VISIBLE
+            isChecked = false
+            setOnClickListener {
+                if (noteListViewModel.editables.size == currentList.size) {
+                    noteListViewModel.allSelected.value = false
+                    noteListViewModel.allDeselected.value = true
+                    noteListViewModel.editables.clear()
+                } else {
+                    noteListViewModel.allSelected.value = true
+                    noteListViewModel.allDeselected.value = false
+                    noteListViewModel.editables.clear()
+                    for (item in currentList) {
+                        noteListViewModel.editables.add(item)
+                    }
+                }
+            }
+        }
 
         addRemoveButton.apply {
             setImageResource(R.drawable.ic_delete)
@@ -257,20 +311,29 @@ class NoteListFragment : Fragment(),
                 }
             }
         }
+
+        refreshRecyclerView()
     }
 
     private fun exitEditMode() {
         noteListViewModel.editMode.value = false
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
+        setHasOptionsMenu(true)
+
         noteListViewModel.editables.clear()
+        closeEditButton.visibility = View.GONE
+        selectAllCheckBox.visibility = View.GONE
 
         addRemoveButton.apply {
             setImageResource(R.drawable.ic_add_note)
             setOnClickListener {
                 val newNote = Note()
                 noteListViewModel.addNote(newNote) // an empty note is generated
-                callbacks?.onNoteSelected(newNote.id, categories, null) // and selected
+                callbacks?.onNoteSelected(newNote.id, null) // and selected
             }
         }
+
+        refreshRecyclerView()
     }
 
     private inner class NoteAdapter
@@ -301,8 +364,12 @@ class NoteListFragment : Fragment(),
 
             fun bind(note: Note) {
                 this.note = note
-                val currentList: MutableList<Note> = currentList
-                
+                this@NoteListFragment.currentList = currentList
+
+                if (note.category == "" && note.title == "" && note.body == "") {
+                    noteListViewModel.deleteNote(note)
+                }
+
                 titleTextView.text = if (note.title == "") {
                     getString(R.string.no_title)
                 } else {
@@ -329,22 +396,6 @@ class NoteListFragment : Fragment(),
                     R.string.note_list_info, dateShown, categoryShown
                 )
 
-                editCheckBox.setOnLongClickListener {
-                    if (noteListViewModel.editables.size == currentList.size) {
-                        noteListViewModel.allSelected.value = false
-                        noteListViewModel.allDeselected.value = true
-                        noteListViewModel.editables.clear()
-                    } else {
-                        noteListViewModel.allSelected.value = true
-                        noteListViewModel.allDeselected.value = false
-                        noteListViewModel.editables.clear()
-                        for (item in currentList) {
-                            noteListViewModel.editables.add(item)
-                        }
-                    }
-                    true
-                }
-
                 noteListViewModel.editMode.observe(
                     viewLifecycleOwner, Observer {
                         if (it == true) {
@@ -356,8 +407,11 @@ class NoteListFragment : Fragment(),
                                 setOnClickListener {
                                     if (isChecked) {
                                         noteListViewModel.editables.add(note)
+                                        selectAllCheckBox.isChecked =
+                                            noteListViewModel.editables.size == currentList.size
                                     } else {
                                         noteListViewModel.editables.remove(note)
+                                        selectAllCheckBox.isChecked = false
                                     }
 
                                     noteListViewModel.allSelected.value =
@@ -391,7 +445,7 @@ class NoteListFragment : Fragment(),
             }
 
             override fun onClick(v: View) {
-                callbacks?.onNoteSelected(note.id, categories, searchTerm)
+                callbacks?.onNoteSelected(note.id, searchTerm)
             }
 
             override fun onLongClick(v: View?): Boolean {

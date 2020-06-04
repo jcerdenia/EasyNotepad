@@ -1,31 +1,35 @@
 package com.joshuacerdenia.android.easynotepad
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import java.io.Serializable
 import java.text.DateFormat.*
 import java.util.*
 
 private const val ARG_NOTE_ID = "arg_note_ID"
-private const val ARG_CATEGORIES = "categories"
 private const val ARG_SEARCH_TERM = "search_term"
+private const val ARG_INTENT = "arg_intent"
 
 class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
 
     private val fragment = this@NoteFragment
+    private lateinit var toolbar: Toolbar
     private val noteViewModel: NoteViewModel by lazy {
         ViewModelProvider(this).get(NoteViewModel::class.java)
     }
 
-    private var callbacks: Callbacks? = null
     private var note: Note = Note()
     private var dataIsLoaded: Boolean = false
 
@@ -36,14 +40,23 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     private lateinit var noteLastModified: TextView
 
     companion object {
-        fun newInstance(noteID: UUID,
-                        categories: MutableSet<String>,
-                        searchTerm: String?
-        ): NoteFragment {
+        fun newInstance(noteID: UUID, searchTerm: String?): NoteFragment {
             val args = Bundle().apply {
                 putSerializable(ARG_NOTE_ID, noteID)
-                putSerializable(ARG_CATEGORIES, categories as Serializable)
                 putString(ARG_SEARCH_TERM, searchTerm)
+            }
+            return NoteFragment().apply {
+                arguments = args
+            }
+        }
+
+        fun newInstanceWithIntent(noteID: UUID,
+                                  intent: Intent
+                                  )
+        : NoteFragment {
+            val args = Bundle().apply {
+                putSerializable(ARG_NOTE_ID, noteID)
+                putParcelable(ARG_INTENT, intent as Parcelable)
             }
             return NoteFragment().apply {
                 arguments = args
@@ -51,25 +64,9 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
         }
     }
 
-    interface Callbacks {
-        fun showUpIndicator()
-        fun hideUpIndicator()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        callbacks?.showUpIndicator()
         setHasOptionsMenu(true)
 
         note = Note()
@@ -84,11 +81,16 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_note, container, false)
 
+        toolbar = view.findViewById(R.id.toolbar) as Toolbar
         noteCategory = view.findViewById(R.id.note_category)
         noteTitle = view.findViewById(R.id.note_title)
         noteBody = view.findViewById(R.id.note_body)
         noteDateCreated = view.findViewById(R.id.note_date_created)
         noteLastModified = view.findViewById(R.id.note_last_modified)
+
+        val activity = (activity as? AppCompatActivity)
+        activity?.setSupportActionBar(toolbar)
+        activity?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         return view
     }
@@ -96,12 +98,12 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val categories = (arguments?.getSerializable(ARG_CATEGORIES) as MutableSet<*>).toList()
         var searchTerm = arguments?.getString(ARG_SEARCH_TERM)?.toLowerCase(Locale.ROOT)
         if (searchTerm == "") {
             searchTerm = null
         }
 
+        val categories = NotePreferences.getCategories(context!!)?.toList() as List<*>
         val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, categories)
         noteCategory.setAdapter(adapter)
         noteCategory.threshold = 1
@@ -114,6 +116,7 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
                     refreshUI()
                     dataIsLoaded = true
 
+                    loadTextFromIntent()
                     findSearchTerm(note, searchTerm)
 
                     saveCopyOnce(note)
@@ -123,6 +126,15 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
         )
     }
 
+    private fun loadTextFromIntent() {
+        val intent = arguments?.getParcelable<Intent>(ARG_INTENT)
+        if (intent !== null) {
+            note.title = intent.getStringExtra(Intent.EXTRA_SUBJECT) as String
+            note.body = intent.getStringExtra(Intent.EXTRA_TEXT) as String
+            refreshUI()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_note, menu)
@@ -130,6 +142,41 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+
+            /** For future implementation?
+             *
+            R.id.menu_undo -> {
+                restoreOldCopy(note)
+                noteViewModel.notYetCopied = true
+                refreshUI()
+                saveCopyOnce(note)
+                noteViewModel.notYetCopied = false
+                when (true) {
+                    noteCategory.isFocused ->
+                        noteCategory.setSelection(note.category.lastIndex + 1)
+                    noteTitle.isFocused -> noteTitle.setSelection(note.title.lastIndex + 1)
+                    noteBody.isFocused -> noteBody.setSelection(note.body.lastIndex + 1)
+                }
+                true
+            }
+            R.id.menu_save -> {
+                if (isNoteModified(note)) {
+                    noteViewModel.notYetCopied = true
+                    saveCopyOnce(note)
+                    noteViewModel.notYetCopied = false
+                    note.lastModified = Date()
+
+                    val dateShown = getDateTimeInstance(MEDIUM, SHORT).format(note.lastModified)
+                    noteLastModified.text = getString(R.string.last_updated_withDate, dateShown)
+                    Toast.makeText(context, getString(R.string.note_saved),
+                        Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, getString(R.string.nothing_to_save),
+                        Toast.LENGTH_SHORT).show()
+                }
+                true
+            } */
+
             R.id.menu_share -> {
                 Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
@@ -163,6 +210,20 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
             noteViewModel.noteBeforeChanged.body = note.body
         }
     }
+
+    private fun isNoteModified(note: Note): Boolean {
+        return !(noteViewModel.noteBeforeChanged.category == note.category
+                && noteViewModel.noteBeforeChanged.title == note.title
+                && noteViewModel.noteBeforeChanged.body == note.body)
+    }
+
+    /** For Future Implementation?
+    private fun restoreOldCopy(note: Note) {
+        note.category = noteViewModel.noteBeforeChanged.category
+        note.title = noteViewModel.noteBeforeChanged.title
+        note.body = noteViewModel.noteBeforeChanged.body
+        note.lastModified = noteViewModel.noteBeforeChanged.lastModified
+    } */
 
     private fun findSearchTerm(note: Note, searchTerm: String?) {
         val title = note.title.toLowerCase(Locale.ROOT)
@@ -210,7 +271,14 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
             }
 
             override fun afterTextChanged(sequence: Editable?) {
-                // Blank
+                if (dataIsLoaded) {
+                    val icon = if (isNoteModified(note)) {
+                        R.drawable.ic_done
+                    } else {
+                        0
+                    }
+                    (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(icon)
+                }
             }
         }
     }
@@ -229,7 +297,6 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
 
     override fun onDeleteConfirmed() {
         noteViewModel.deleteNote(note)
-        callbacks?.hideUpIndicator()
         parentFragmentManager.popBackStack()
     }
 
