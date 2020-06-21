@@ -22,7 +22,7 @@ object NotePreferences {
 
     fun getCategories(context: Context): MutableSet<String>? {
         val sharedPrefs = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-        return sharedPrefs.getStringSet(KEY_CATEGORIES, emptySet())
+        return sharedPrefs.getStringSet(KEY_CATEGORIES, null)
     }
 
     fun setCategories(context: Context, categories: MutableSet<String>) {

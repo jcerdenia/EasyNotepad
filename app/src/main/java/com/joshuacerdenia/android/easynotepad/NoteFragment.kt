@@ -50,10 +50,7 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
             }
         }
 
-        fun newInstanceWithIntent(noteID: UUID,
-                                  intent: Intent
-                                  )
-        : NoteFragment {
+        fun newInstanceWithIntent(noteID: UUID, intent: Intent): NoteFragment {
             val args = Bundle().apply {
                 putSerializable(ARG_NOTE_ID, noteID)
                 putParcelable(ARG_INTENT, intent as Parcelable)
@@ -108,9 +105,7 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
         noteCategory.setAdapter(adapter)
         noteCategory.threshold = 1
 
-        noteViewModel.noteLiveData.observe(
-            viewLifecycleOwner,
-            Observer { note ->
+        noteViewModel.noteLiveData.observe(viewLifecycleOwner, Observer { note ->
                 note?.let {
                     this.note = note
                     refreshUI()
@@ -122,15 +117,14 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
                     saveCopyOnce(note)
                     noteViewModel.notYetCopied = false
                 }
-            }
-        )
+        })
     }
 
     private fun loadTextFromIntent() {
         val intent = arguments?.getParcelable<Intent>(ARG_INTENT)
         if (intent !== null) {
-            note.title = intent.getStringExtra(Intent.EXTRA_SUBJECT) as String
-            note.body = intent.getStringExtra(Intent.EXTRA_TEXT) as String
+            note.title = intent.getStringExtra(Intent.EXTRA_SUBJECT) ?: ""
+            note.body = intent.getStringExtra(Intent.EXTRA_TEXT) ?: ""
             refreshUI()
         }
     }

@@ -66,10 +66,7 @@ class NoteListFragment : Fragment(),
     }
 
     interface Callbacks {
-        fun onNoteSelected(noteID: UUID,
-                           searchTerm: String?
-        )
-
+        fun onNoteSelected(noteID: UUID, searchTerm: String?)
         fun onNoteAddedWithIntent(noteID: UUID)
     }
 
@@ -82,7 +79,9 @@ class NoteListFragment : Fragment(),
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         sortPreference = getSortPreference(this.activity!!)
-        categories = getCategories(this.activity!!) as MutableSet
+
+        categories = getCategories(this.activity!!) ?: emptySet<String>().toMutableSet()
+
     }
 
     override fun onCreateView(
@@ -206,8 +205,7 @@ class NoteListFragment : Fragment(),
     }
 
     private fun searchNotes(query: String) {
-        noteListViewModel.noteListLiveData.observe(
-            viewLifecycleOwner, Observer { notes ->
+        noteListViewModel.noteListLiveData.observe(viewLifecycleOwner, Observer { notes ->
                 notes?.let {
                     val filteredList = mutableListOf<Note>()
                     for (note in notes) {
@@ -221,13 +219,11 @@ class NoteListFragment : Fragment(),
                     val sortedList = sortByPreference(filteredList)
                     adapter?.submitList(sortedList)
                 }
-            }
-        )
+        })
     }
 
     private fun refreshRecyclerView() {
-        noteListViewModel.noteListLiveData.observe(
-            viewLifecycleOwner, Observer { notes ->
+        noteListViewModel.noteListLiveData.observe(viewLifecycleOwner, Observer { notes ->
                 notes?.let {
                     val sortedList = sortByPreference(notes)
                     adapter?.submitList(sortedList)
@@ -250,8 +246,7 @@ class NoteListFragment : Fragment(),
                         }
                     }
                 }
-            }
-        )
+        })
     }
 
     private fun sortByPreference(list: List<Note>): List<Note> {
@@ -364,7 +359,7 @@ class NoteListFragment : Fragment(),
 
             fun bind(note: Note) {
                 this.note = note
-                this@NoteListFragment.currentList = currentList
+                fragment.currentList = currentList
 
                 if (note.category == "" && note.title == "" && note.body == "") {
                     noteListViewModel.deleteNote(note)
@@ -396,8 +391,7 @@ class NoteListFragment : Fragment(),
                     R.string.note_list_info, dateShown, categoryShown
                 )
 
-                noteListViewModel.editMode.observe(
-                    viewLifecycleOwner, Observer {
+                noteListViewModel.editMode.observe(viewLifecycleOwner, Observer {
                         if (it == true) {
                             itemView.setOnClickListener(null)
                             editCheckBox.apply {
@@ -424,24 +418,19 @@ class NoteListFragment : Fragment(),
                             itemView.setOnClickListener(this)
                             editCheckBox.visibility = View.GONE
                         }
-                    }
-                )
+                })
 
-                noteListViewModel.allSelected.observe(
-                    viewLifecycleOwner, Observer {
+                noteListViewModel.allSelected.observe(viewLifecycleOwner, Observer {
                         if (it == true) {
                             editCheckBox.isChecked = true
                         }
-                    }
-                )
+                })
 
-                noteListViewModel.allDeselected.observe(
-                    viewLifecycleOwner, Observer {
+                noteListViewModel.allDeselected.observe(viewLifecycleOwner, Observer {
                         if (it == true) {
                             editCheckBox.isChecked = false
                         }
-                    }
-                )
+                })
             }
 
             override fun onClick(v: View) {
