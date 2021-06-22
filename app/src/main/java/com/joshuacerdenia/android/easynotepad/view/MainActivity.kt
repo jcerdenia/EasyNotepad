@@ -1,7 +1,8 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.joshuacerdenia.android.easynotepad.R
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {

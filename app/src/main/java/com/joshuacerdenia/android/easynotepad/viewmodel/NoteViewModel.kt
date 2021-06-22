@@ -1,9 +1,11 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.joshuacerdenia.android.easynotepad.data.Note
+import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 import java.util.*
 
 class NoteViewModel : ViewModel() {

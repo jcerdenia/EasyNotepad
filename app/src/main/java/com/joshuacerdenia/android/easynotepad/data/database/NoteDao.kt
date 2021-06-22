@@ -1,8 +1,8 @@
-package com.joshuacerdenia.android.easynotepad.database
+package com.joshuacerdenia.android.easynotepad.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.joshuacerdenia.android.easynotepad.Note
+import com.joshuacerdenia.android.easynotepad.data.Note
 import java.util.*
 
 @Dao

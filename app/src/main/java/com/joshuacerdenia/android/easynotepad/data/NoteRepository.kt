@@ -1,10 +1,9 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.data
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.joshuacerdenia.android.easynotepad.database.NoteDatabase
-import java.lang.IllegalStateException
+import com.joshuacerdenia.android.easynotepad.data.database.NoteDatabase
 import java.util.*
 import java.util.concurrent.Executors
 

@@ -1,6 +1,7 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.data
 
 import android.content.Context
+import com.joshuacerdenia.android.easynotepad.LAST_UPDATED
 
 private const val SHARED_PREFS = "shared_prefs"
 private const val KEY_SORT_PREF: String = "key_sort_pref"

@@ -1,4 +1,4 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.view.fragment
 
 import android.content.Context
 import android.os.Bundle
@@ -15,10 +15,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.joshuacerdenia.android.easynotepad.NotePreferences.getCategories
-import com.joshuacerdenia.android.easynotepad.NotePreferences.getSortPreference
-import com.joshuacerdenia.android.easynotepad.NotePreferences.setCategories
-import com.joshuacerdenia.android.easynotepad.NotePreferences.setSortPreference
+import com.joshuacerdenia.android.easynotepad.R
+import com.joshuacerdenia.android.easynotepad.data.Note
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences.getCategories
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences.getSortPreference
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences.setCategories
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences.setSortPreference
+import com.joshuacerdenia.android.easynotepad.viewmodel.NoteListViewModel
 import java.text.DateFormat.*
 import java.util.*
 
@@ -78,9 +81,9 @@ class NoteListFragment : Fragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        sortPreference = getSortPreference(this.activity!!)
+        sortPreference = getSortPreference(this.requireActivity())
 
-        categories = getCategories(this.activity!!) ?: emptySet<String>().toMutableSet()
+        categories = getCategories(this.requireActivity()) ?: emptySet<String>().toMutableSet()
 
     }
 
@@ -209,10 +212,10 @@ class NoteListFragment : Fragment(),
                 notes?.let {
                     val filteredList = mutableListOf<Note>()
                     for (note in notes) {
-                        if (note.title.toLowerCase(Locale.ROOT)
-                                .contains(query.toLowerCase(Locale.ROOT))
-                            || note.body.toLowerCase(Locale.ROOT)
-                                .contains(query.toLowerCase(Locale.ROOT))) {
+                        if (note.title.lowercase(Locale.ROOT)
+                                .contains(query.lowercase(Locale.ROOT))
+                            || note.body.lowercase(Locale.ROOT)
+                                .contains(query.lowercase(Locale.ROOT))) {
                             filteredList.add(note)
                         }
                     }

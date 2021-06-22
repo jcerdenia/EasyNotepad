@@ -1,4 +1,4 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

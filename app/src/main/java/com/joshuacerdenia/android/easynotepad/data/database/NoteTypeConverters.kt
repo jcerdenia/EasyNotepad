@@ -1,4 +1,4 @@
-package com.joshuacerdenia.android.easynotepad.database
+package com.joshuacerdenia.android.easynotepad.data.database
 
 import androidx.room.TypeConverter
 import java.util.*

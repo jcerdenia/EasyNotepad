@@ -1,7 +1,9 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.joshuacerdenia.android.easynotepad.data.Note
+import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 
 class NoteListViewModel : ViewModel() {
 

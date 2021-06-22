@@ -1,4 +1,4 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.view.dialog
 
 import android.app.Dialog
 import android.os.Bundle

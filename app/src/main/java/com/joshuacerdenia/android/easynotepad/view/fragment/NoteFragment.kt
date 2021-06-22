@@ -1,4 +1,4 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.joshuacerdenia.android.easynotepad.data.Note
 import java.text.DateFormat.*
 import java.util.*
 
@@ -78,7 +79,7 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_note, container, false)
 
-        toolbar = view.findViewById(R.id.toolbar) as Toolbar
+        toolbar = view.findViewById(R.id.toolbar)
         noteCategory = view.findViewById(R.id.note_category)
         noteTitle = view.findViewById(R.id.note_title)
         noteBody = view.findViewById(R.id.note_body)
@@ -95,28 +96,28 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var searchTerm = arguments?.getString(ARG_SEARCH_TERM)?.toLowerCase(Locale.ROOT)
+        var searchTerm = arguments?.getString(ARG_SEARCH_TERM)?.lowercase(Locale.ROOT)
         if (searchTerm == "") {
             searchTerm = null
         }
 
-        val categories = NotePreferences.getCategories(context!!)?.toList() as List<*>
+        val categories = NotePreferences.getCategories(context!!).toList() as List<*>
         val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, categories)
         noteCategory.setAdapter(adapter)
         noteCategory.threshold = 1
 
         noteViewModel.noteLiveData.observe(viewLifecycleOwner, Observer { note ->
-                note?.let {
-                    this.note = note
-                    refreshUI()
-                    dataIsLoaded = true
+            note.let {
+                this.note = note
+                refreshUI()
+                dataIsLoaded = true
 
-                    loadTextFromIntent()
-                    findSearchTerm(note, searchTerm)
+                loadTextFromIntent()
+                findSearchTerm(note, searchTerm)
 
-                    saveCopyOnce(note)
-                    noteViewModel.notYetCopied = false
-                }
+                saveCopyOnce(note)
+                noteViewModel.notYetCopied = false
+            }
         })
     }
 
@@ -220,8 +221,8 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
     } */
 
     private fun findSearchTerm(note: Note, searchTerm: String?) {
-        val title = note.title.toLowerCase(Locale.ROOT)
-        val body = note.body.toLowerCase(Locale.ROOT)
+        val title = note.title.lowercase(Locale.ROOT)
+        val body = note.body.lowercase(Locale.ROOT)
         if (searchTerm !== null) {
             if (title.contains(searchTerm)) {
                 val index = title.indexOf(searchTerm)

@@ -1,9 +1,10 @@
-package com.joshuacerdenia.android.easynotepad
+package com.joshuacerdenia.android.easynotepad.view.dialog
 
 import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.joshuacerdenia.android.easynotepad.R
 
 private const val ARG_NUMBER = "arg_number"
 
@@ -30,7 +31,7 @@ class ConfirmDeleteFragment : DialogFragment() {
             "$number notes"
         }
 
-        val dialogBuilder = AlertDialog.Builder(context!!)
+        val dialogBuilder = AlertDialog.Builder(requireContext())
         dialogBuilder
             .setTitle(getString(R.string.confirm_delete, whatToDelete))
             .setMessage(getString(R.string.no_undo))
