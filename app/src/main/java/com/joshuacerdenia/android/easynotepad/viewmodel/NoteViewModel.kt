@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.joshuacerdenia.android.easynotepad.data.Note
 import com.joshuacerdenia.android.easynotepad.data.NoteRepository
+import com.joshuacerdenia.android.easynotepad.data.model.Note
 import java.util.*
 
 class NoteViewModel : ViewModel() {

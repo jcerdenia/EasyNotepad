@@ -2,35 +2,37 @@ package com.joshuacerdenia.android.easynotepad.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.joshuacerdenia.android.easynotepad.data.Note
 import com.joshuacerdenia.android.easynotepad.data.NoteRepository
+import com.joshuacerdenia.android.easynotepad.data.model.Note
+import java.util.*
 
 class NoteListViewModel : ViewModel() {
 
-    private val noteRepository = NoteRepository.get()
-    val noteListLiveData = noteRepository.getNotes()
+    private val repo = NoteRepository.get()
 
-    var editMode: MutableLiveData<Boolean> = MutableLiveData()
-    var allSelected: MutableLiveData<Boolean> = MutableLiveData()
-    var allDeselected: MutableLiveData<Boolean> = MutableLiveData()
-    var editables = mutableListOf<Note>()
+    val notesLive = repo.getNotes()
+
+    var isManagingLive: MutableLiveData<Boolean> = MutableLiveData()
+    var selectedItems = mutableListOf<Note>()
 
     init {
-        editMode.value = false
-        allSelected.value = false
-        allDeselected.value = false
+        isManagingLive.value = false
+    }
+
+    fun setIsManaging(isManaging: Boolean) {
+        isManagingLive.value = isManaging
     }
 
     fun addNote(note: Note) {
-        noteRepository.addNote(note)
+        repo.addNote(note)
     }
 
-    fun deleteNote(note: Note) {
-        noteRepository.deleteNote(note)
+    fun deleteNotesByID(ids: List<UUID>) {
+        repo.deleteNotesByID(ids)
     }
 
     /** For Future Implementation? Edit Categories
     fun saveNote(note: Note) {
-        noteRepository.updateNote(note)
+        repo.updateNote(note)
     } */
 }

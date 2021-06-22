@@ -16,8 +16,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.joshuacerdenia.android.easynotepad.R
-import com.joshuacerdenia.android.easynotepad.data.Note
 import com.joshuacerdenia.android.easynotepad.data.NotePreferences
+import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.view.dialog.ConfirmDeleteFragment
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteViewModel
 import java.text.DateFormat.*

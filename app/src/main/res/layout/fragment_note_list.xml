@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:animateLayoutChanges="true">
 
     <androidx.appcompat.widget.Toolbar
@@ -16,11 +17,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/app_name">
-
     </androidx.appcompat.widget.Toolbar>
 
     <CheckBox
-        android:id="@+id/select_all"
+        android:id="@+id/select_all_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -40,14 +40,15 @@
         android:alpha="0.50"
         android:background="@color/colorPrimary"
         android:tint="@android:color/secondary_text_dark_nodisable"
-        android:visibility="visible"
+        android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close" />
 
     <TextView
-        android:id="@+id/empty"
+        android:id="@+id/empty_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty"
@@ -58,7 +59,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/note_recycler_view"
+        android:id="@+id/recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -67,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_note_button"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"

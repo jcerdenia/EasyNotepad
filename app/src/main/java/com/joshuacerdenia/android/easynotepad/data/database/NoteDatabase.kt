@@ -3,7 +3,7 @@ package com.joshuacerdenia.android.easynotepad.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.joshuacerdenia.android.easynotepad.data.Note
+import com.joshuacerdenia.android.easynotepad.data.model.Note
 
 @Database(entities = [Note::class], version=1)
 @TypeConverters(NoteTypeConverters::class)
