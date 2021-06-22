@@ -3,37 +3,36 @@ package com.joshuacerdenia.android.easynotepad.view
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.joshuacerdenia.android.easynotepad.R
+import com.joshuacerdenia.android.easynotepad.databinding.ActivityMainBinding
+import com.joshuacerdenia.android.easynotepad.view.fragment.NoteFragment
+import com.joshuacerdenia.android.easynotepad.view.fragment.NoteListFragment
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        val isIntentText = intent?.type?.startsWith("text/plain") ?: false
 
-        val fragment = if (intent?.type?.startsWith("text/plain") == true) {
-            NoteListFragment.newInstance(true)
-        } else {
-            NoteListFragment.newInstance(false)
-        }
-
-        if (currentFragment == null) {
+        if (savedInstanceState == null) {
+            val fragment = NoteListFragment.newInstance(isIntentText)
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, fragment)
+                .add(binding.fragmentContainer.id, fragment)
                 .commit()
         }
     }
 
-    override fun onNoteSelected(noteID: UUID,
-                                searchTerm: String?
-    ) {
+    override fun onNoteSelected(noteID: UUID, searchTerm: String?) {
         val fragment = NoteFragment.newInstance(noteID, searchTerm)
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+            .replace(binding.fragmentContainer.id, fragment)
             .addToBackStack(null)
             .commit()
     }
