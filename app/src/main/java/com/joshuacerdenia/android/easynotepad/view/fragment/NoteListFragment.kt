@@ -21,6 +21,7 @@ import com.joshuacerdenia.android.easynotepad.data.NotePreferences.getCategories
 import com.joshuacerdenia.android.easynotepad.data.NotePreferences.getSortPreference
 import com.joshuacerdenia.android.easynotepad.data.NotePreferences.setCategories
 import com.joshuacerdenia.android.easynotepad.data.NotePreferences.setSortPreference
+import com.joshuacerdenia.android.easynotepad.view.dialog.*
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteListViewModel
 import java.text.DateFormat.*
 import java.util.*
@@ -203,8 +204,8 @@ class NoteListFragment : Fragment(),
 
     override fun onStop() {
         super.onStop()
-        setSortPreference(this.activity!!, sortPreference)
-        setCategories(this.activity!!, categories)
+        setSortPreference(this.requireActivity(), sortPreference)
+        setCategories(this.requireActivity(), categories)
     }
 
     private fun searchNotes(query: String) {

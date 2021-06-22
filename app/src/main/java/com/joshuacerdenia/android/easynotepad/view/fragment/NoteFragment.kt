@@ -15,7 +15,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.Note
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences
+import com.joshuacerdenia.android.easynotepad.view.dialog.ConfirmDeleteFragment
+import com.joshuacerdenia.android.easynotepad.viewmodel.NoteViewModel
 import java.text.DateFormat.*
 import java.util.*
 
@@ -101,14 +105,14 @@ class NoteFragment : Fragment(), ConfirmDeleteFragment.Callbacks {
             searchTerm = null
         }
 
-        val categories = NotePreferences.getCategories(context!!).toList() as List<*>
-        val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, categories)
+        val categories = NotePreferences.getCategories(requireContext())?.toList() as List<*>
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories)
         noteCategory.setAdapter(adapter)
         noteCategory.threshold = 1
 
         noteViewModel.noteLiveData.observe(viewLifecycleOwner, Observer { note ->
             note.let {
-                this.note = note
+                this.note = note!!
                 refreshUI()
                 dataIsLoaded = true
 

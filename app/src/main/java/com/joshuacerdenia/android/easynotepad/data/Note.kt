@@ -9,7 +9,7 @@ data class Note(
     @PrimaryKey var id: UUID = UUID.randomUUID(),
     var category: String = "",
     var title: String = "",
-    var dateCreated: Date = Date(),
+    val dateCreated: Date = Date(),
     var lastModified: Date = Date(),
     var body: String = ""
 )
