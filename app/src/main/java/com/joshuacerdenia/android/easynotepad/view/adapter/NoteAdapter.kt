@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.NoteMinimal
+import com.joshuacerdenia.android.easynotepad.databinding.ListItemNoteBinding
 import com.joshuacerdenia.android.easynotepad.extension.setVisibility
 import java.text.DateFormat
 import java.util.*
@@ -43,24 +43,21 @@ class NoteAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
-        val view = LayoutInflater
-            .from(parent.context)
-            .inflate(R.layout.list_item_note, parent, false)
-        return NoteHolder(view)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ListItemNoteBinding.inflate(inflater, parent, false)
+        return NoteHolder(binding)
     }
 
     override fun onBindViewHolder(holder: NoteHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class NoteHolder(view: View) : RecyclerView.ViewHolder(view),
-        View.OnClickListener, View.OnLongClickListener {
+    inner class NoteHolder(private val binding: ListItemNoteBinding) :
+        RecyclerView.ViewHolder(binding.root),
+        View.OnClickListener,
+        View.OnLongClickListener {
 
         private lateinit var noteID: UUID
-
-        private val titleTextView: TextView = itemView.findViewById(R.id.note_title)
-        private val infoTextView: TextView = itemView.findViewById(R.id.note_info)
-        private val editCheckBox: CheckBox = itemView.findViewById(R.id.edit_checkbox)
 
         init {
             itemView.setOnClickListener(this)
@@ -69,9 +66,22 @@ class NoteAdapter(
 
         fun bind(note: NoteMinimal) {
             noteID = note.id
-            titleTextView.text = note.title
+            binding.titleTextView.text = note.title
+            binding.categoryTextView.text = note.category.run {
+                if (this.isNotEmpty()) this else context.getString(R.string.no_category)
+            }
 
-            editCheckBox.apply {
+            binding.dateTimeTextView.text = note.lastModified.run {
+                val dateNow = DateFormat.getDateInstance().format(Date())
+                val dateModified = DateFormat.getDateInstance().format(this)
+                if (dateNow == dateModified) {
+                    DateFormat.getTimeInstance(DateFormat.SHORT).format(this)
+                } else {
+                    DateFormat.getDateInstance(DateFormat.MEDIUM).format(this)
+                }
+            }
+
+            binding.editCheckBox.apply {
                 setVisibility(shouldShowCheckBoxes)
                 isChecked = selectedItems.contains(note.id)
                 checkBoxes.add(this)
@@ -79,24 +89,6 @@ class NoteAdapter(
                     listener.onNoteCheckBoxClicked(note.id, this.isChecked)
                 }
             }
-
-            val categoryShown = if (note.category == "") {
-                context.getString(R.string.no_category)
-            } else {
-                note.category
-            }
-
-            val dateShown =
-                if (
-                    DateFormat.getDateInstance().format(Date()) ==
-                    DateFormat.getDateInstance().format(note.lastModified)
-                ) {
-                    DateFormat.getTimeInstance(DateFormat.SHORT).format(note.lastModified)
-                } else {
-                    DateFormat.getDateInstance(DateFormat.MEDIUM).format(note.lastModified)
-                }
-
-            infoTextView.text = context.getString(R.string.note_list_info, dateShown, categoryShown)
         }
 
         override fun onClick(v: View) {

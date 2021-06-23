@@ -2,7 +2,6 @@ package com.joshuacerdenia.android.easynotepad.view.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import androidx.appcompat.widget.SearchView
@@ -75,7 +74,6 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         })
 
         viewModel.selectedNoteIDsLive.observe(viewLifecycleOwner, { noteIDs ->
-            Log.d(TAG, "Selected items: ${noteIDs.size}")
             adapter.selectedItems = noteIDs
             if (noteIDs.size < adapter.currentList.size) {
                 binding.selectAllCheckbox.isChecked = false
@@ -108,7 +106,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         binding.fab.setVisibility(!isManaging)
         binding.toolbar.title = if (!isManaging) getString(R.string.app_name) else null
         updateMenuItems(binding.toolbar.menu, isManaging)
-        if (!isManaging) viewModel.clearSelectedItems()
+        if (!isManaging) adapter.toggleCheckBoxes(false)
     }
 
     private fun updateMenuItems(menu: Menu, isManaging: Boolean) {
@@ -148,12 +146,13 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
                 true
             }
             R.id.menu_item_sort -> {
-                NoteListSorterFragment.newInstance("CHANGE LATER")
+                NoteListSorterFragment
+                    .newInstance("CHANGE LATER")
                     .show(parentFragmentManager, "sort")
                 true
             }
             R.id.menu_item_delete -> {
-                // TODO
+                viewModel.deleteSelectedItems()
                 true
             }
             else -> super.onOptionsItemSelected(item)

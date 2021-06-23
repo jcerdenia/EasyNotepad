@@ -30,6 +30,7 @@ class NoteListViewModel : ViewModel() {
 
     fun setIsManaging(isManaging: Boolean) {
         _isManagingLive.value = isManaging
+        if (!isManaging) clearSelectedItems()
     }
 
     fun isManaging(): Boolean {
@@ -40,8 +41,8 @@ class NoteListViewModel : ViewModel() {
         repo.addNote(note)
     }
 
-    fun deleteNotesByID(ids: List<UUID>) {
-        repo.deleteNotesByID(ids)
+    fun deleteSelectedItems() {
+        repo.deleteNotesByID(selectedNoteIDs.toList())
     }
 
     fun replaceSelectedItems(noteIDs: List<UUID>) {
