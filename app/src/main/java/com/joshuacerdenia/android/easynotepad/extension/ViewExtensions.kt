@@ -9,3 +9,7 @@ fun View.show() {
 fun View.hide() {
     this.visibility = View.GONE
 }
+
+fun View.setVisibility(isVisible: Boolean) {
+    this.visibility = if (isVisible) View.VISIBLE else View.GONE
+}

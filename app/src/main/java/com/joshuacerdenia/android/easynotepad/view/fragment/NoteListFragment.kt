@@ -2,7 +2,9 @@ package com.joshuacerdenia.android.easynotepad.view.fragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.widget.CheckBox
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -11,9 +13,7 @@ import androidx.recyclerview.widget.*
 import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteListBinding
-import com.joshuacerdenia.android.easynotepad.extension.hide
-import com.joshuacerdenia.android.easynotepad.extension.show
-import com.joshuacerdenia.android.easynotepad.extension.toMinimal
+import com.joshuacerdenia.android.easynotepad.extension.setVisibility
 import com.joshuacerdenia.android.easynotepad.view.adapter.NoteAdapter
 import com.joshuacerdenia.android.easynotepad.view.dialog.*
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteListViewModel
@@ -22,21 +22,19 @@ import java.util.*
 
 class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
-    private var _binding: FragmentNoteListBinding? = null
-    private val binding get() = _binding!!
-
-    private val viewModel: NoteListViewModel by viewModels()
-    private lateinit var adapter: NoteAdapter
-    private var callbacks: Callbacks? = null
-
-    private var searchTerm: String? = null
-
     interface Callbacks {
 
         fun onNoteSelected(noteID: UUID, query: String? = null)
 
         fun onToolbarInflated(toolbar: Toolbar)
     }
+
+    private var _binding: FragmentNoteListBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: NoteListViewModel by viewModels()
+    private lateinit var adapter: NoteAdapter
+    private var callbacks: Callbacks? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -59,81 +57,84 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = this@NoteListFragment.adapter
-            val divider = DividerItemDecoration(context, LinearLayoutManager.HORIZONTAL)
-            addItemDecoration(divider)
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         viewModel.isManagingLive.observe(viewLifecycleOwner, { isManaging ->
             updateUI(isManaging)
         })
 
         viewModel.notesLive.observe(viewLifecycleOwner, { notes ->
-            if (notes.isNotEmpty()) {
-                binding.emptyTextView.hide()
-                adapter.submitList(notes.toMinimal())
-            } else {
-                binding.emptyTextView.show()
+            binding.emptyTextView.setVisibility(notes.isEmpty())
+            binding.recyclerView.setVisibility(notes.isNotEmpty())
+            adapter.submitList(notes)
+        })
+
+        viewModel.selectedNoteIDsLive.observe(viewLifecycleOwner, { noteIDs ->
+            Log.d(TAG, "Selected items: ${noteIDs.size}")
+            adapter.selectedItems = noteIDs
+            if (noteIDs.size < adapter.currentList.size) {
+                binding.selectAllCheckbox.isChecked = false
             }
         })
+
+        binding.selectAllCheckbox.setOnClickListener { checkBox ->
+            if ((checkBox as CheckBox).isChecked) {
+                val currentNoteIDs = adapter.currentList.map { it.id }
+                viewModel.replaceSelectedItems(currentNoteIDs)
+                adapter.toggleCheckBoxes(true)
+            } else {
+                viewModel.clearSelectedItems()
+                adapter.toggleCheckBoxes(false)
+            }
+        }
+
+        binding.fab.setOnClickListener {
+            val note = Note() // Create blank note.
+            note.title = "Test" // Delete later.
+            viewModel.addNote(note)
+            // TODO: open note
+            // callbacks?.onNoteSelected(note.id)
+        }
     }
 
     private fun updateUI(isManaging: Boolean) {
-        setHasOptionsMenu(!isManaging)
+        adapter.shouldShowCheckBoxes = isManaging
+        binding.selectAllCheckbox.setVisibility(isManaging)
+        binding.fab.setVisibility(!isManaging)
+        binding.toolbar.title = if (!isManaging) getString(R.string.app_name) else null
+        updateMenuItems(binding.toolbar.menu, isManaging)
+        if (!isManaging) viewModel.clearSelectedItems()
+    }
 
-        if (isManaging) {
-            binding.toolbar.title = null
-            binding.closeButton.apply {
-                show()
-                setOnClickListener {
-                    viewModel.setIsManaging(false)
-                }
-            }
-
-            // FAB becomes Delete button.
-            binding.fab.apply {
-                setImageResource(R.drawable.ic_delete)
-                setOnClickListener {
-                    // TODO: Delete selected Items
-                }
-            }
-        } else {
-            binding.toolbar.title = getString(R.string.app_name)
-            binding.closeButton.hide()
-
-            // FAB becomes Add button.
-            binding.fab.apply {
-                setImageResource(R.drawable.ic_add_note)
-                setOnClickListener {
-                    val note = Note() // Create blank note.
-                    viewModel.addNote(note)
-                    callbacks?.onNoteSelected(note.id)
-                }
-            }
+    private fun updateMenuItems(menu: Menu, isManaging: Boolean) {
+        menu.apply {
+            findItem(R.id.menu_item_search)?.isVisible = !isManaging
+            findItem(R.id.menu_item_manage)?.isVisible = !isManaging
+            findItem(R.id.menu_item_sort)?.isVisible = !isManaging
+            findItem(R.id.menu_item_delete)?.isVisible = isManaging
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_note_list, menu)
+        updateMenuItems(menu, viewModel.isManaging())
 
-        val searchItem: MenuItem = menu.findItem(R.id.menu_search)
-        val searchView = searchItem.actionView as SearchView
-
-        searchView.apply {
+        menu.findItem(R.id.menu_item_search).actionView?.apply {
+            this as SearchView
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     // TODO: Search notes
-                    searchTerm = query
                     return true
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     // TODO: Search notes
-                    searchTerm = newText
                     return true
                 }
             })
@@ -142,14 +143,17 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_edit -> {
+            R.id.menu_item_manage -> {
                 viewModel.setIsManaging(true)
                 true
             }
-            R.id.menu_sort -> {
-                NoteListSorterFragment.newInstance("CHANGE LATER").apply {
-                    show(parentFragmentManager, "sort")
-                }
+            R.id.menu_item_sort -> {
+                NoteListSorterFragment.newInstance("CHANGE LATER")
+                    .show(parentFragmentManager, "sort")
+                true
+            }
+            R.id.menu_item_delete -> {
+                // TODO
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -161,7 +165,24 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
     }
 
     override fun onNoteLongClicked(noteID: UUID) {
-        // TODO
+        // TODO: Select note
+        viewModel.setIsManaging(!viewModel.isManaging())
+        // viewModel.addSelection(noteID)
+    }
+
+    override fun onNoteCheckBoxClicked(noteID: UUID, isChecked: Boolean) {
+        viewModel.apply {
+            if (isChecked) addSelection(noteID) else removeSelection(noteID)
+        }
+    }
+
+    fun handleBackPress(): Boolean {
+        return if (viewModel.isManaging()) {
+            viewModel.setIsManaging(false)
+            true
+        } else {
+            false
+        }
     }
 
     override fun onDetach() {
@@ -175,6 +196,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
     }
 
     companion object {
+        private const val TAG = "NoteListFragment"
         private const val HAS_TEXT_INTENT = "HAS_TEXT_INTENT"
 
         fun newInstance(hasTextIntent: Boolean): NoteListFragment {

@@ -41,6 +41,16 @@ class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
         setSupportActionBar(toolbar)
     }
 
+    override fun onBackPressed() {
+        val fragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
+        if (fragment is NoteListFragment) {
+            val isHandled = fragment.handleBackPress()
+            if (!isHandled) super.onBackPressed()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

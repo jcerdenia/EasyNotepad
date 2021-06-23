@@ -1,26 +1,39 @@
 package com.joshuacerdenia.android.easynotepad.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 import com.joshuacerdenia.android.easynotepad.data.model.Note
+import com.joshuacerdenia.android.easynotepad.data.model.NoteMinimal
 import java.util.*
 
 class NoteListViewModel : ViewModel() {
 
     private val repo = NoteRepository.get()
+    private val notesDbLive = repo.getNotes()
+    val notesLive = MediatorLiveData<List<NoteMinimal>>()
 
-    val notesLive = repo.getNotes()
+    private val _isManagingLive = MutableLiveData(false)
+    val isManagingLive: LiveData<Boolean> get() = _isManagingLive
 
-    var isManagingLive: MutableLiveData<Boolean> = MutableLiveData()
-    var selectedItems = mutableListOf<Note>()
+    private var selectedNoteIDs = mutableSetOf<UUID>()
+    private val _selectedNoteIDsLive = MutableLiveData<Set<UUID>>()
+    val selectedNoteIDsLive: LiveData<Set<UUID>> get() = _selectedNoteIDsLive
 
     init {
-        isManagingLive.value = false
+        notesLive.addSource(notesDbLive) { notes ->
+            notesLive.value = notes.map { it.toMinimal() }
+        }
     }
 
     fun setIsManaging(isManaging: Boolean) {
-        isManagingLive.value = isManaging
+        _isManagingLive.value = isManaging
+    }
+
+    fun isManaging(): Boolean {
+        return _isManagingLive.value ?: false
     }
 
     fun addNote(note: Note) {
@@ -31,8 +44,24 @@ class NoteListViewModel : ViewModel() {
         repo.deleteNotesByID(ids)
     }
 
-    /** For Future Implementation? Edit Categories
-    fun saveNote(note: Note) {
-        repo.updateNote(note)
-    } */
+    fun replaceSelectedItems(noteIDs: List<UUID>) {
+        selectedNoteIDs.clear()
+        selectedNoteIDs.addAll(noteIDs)
+        _selectedNoteIDsLive.value = selectedNoteIDs
+    }
+
+    fun addSelection(noteID: UUID) {
+        selectedNoteIDs.add(noteID)
+        _selectedNoteIDsLive.value = selectedNoteIDs
+    }
+
+    fun removeSelection(noteID: UUID) {
+        selectedNoteIDs.remove(noteID)
+        _selectedNoteIDsLive.value = selectedNoteIDs
+    }
+
+    fun clearSelectedItems() {
+        selectedNoteIDs.clear()
+        _selectedNoteIDsLive.value = selectedNoteIDs
+    }
 }

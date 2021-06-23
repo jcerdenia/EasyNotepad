@@ -18,6 +18,6 @@
     <string name="nothing_selected">Nothing selected</string>
     <string name="send_note">Send note via</string>
     <string name="empty">No notes</string>
-    <string name="select_all">Select all</string>
+    <string name="select_all">Select All</string>
     <string name="share">Share</string>
 </resources>
