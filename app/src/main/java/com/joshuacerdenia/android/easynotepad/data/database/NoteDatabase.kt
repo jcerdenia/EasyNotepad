@@ -15,12 +15,12 @@ abstract class NoteDatabase : RoomDatabase() {
 
     companion object {
 
+        private const val NAME = "note_database"
+
         fun build(context: Context): NoteDatabase {
-            return Room.databaseBuilder(
-                context.applicationContext,
-                NoteDatabase::class.java,
-                "note_database"
-            ).build()
+            return Room
+                .databaseBuilder(context, NoteDatabase::class.java, NAME)
+                .build()
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import java.util.*
 
 class NoteTypeConverters {
+
     @TypeConverter
     fun fromDate(date: Date?): Long? {
         return date?.time
@@ -11,9 +12,7 @@ class NoteTypeConverters {
 
     @TypeConverter
     fun toDate(millisSinceEpoch: Long?): Date? {
-        return millisSinceEpoch?.let {
-            Date(it)
-        }
+        return millisSinceEpoch?.let { Date(it) }
     }
 
     @TypeConverter
