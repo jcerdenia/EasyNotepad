@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.joshuacerdenia.android.easynotepad"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 104
         versionName "2.0"

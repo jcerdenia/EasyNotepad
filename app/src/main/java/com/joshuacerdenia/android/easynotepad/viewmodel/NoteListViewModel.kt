@@ -9,9 +9,10 @@ import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.data.model.NoteMinimal
 import java.util.*
 
-class NoteListViewModel : ViewModel() {
+class NoteListViewModel(
+    private val repo: NoteRepository = NoteRepository.get()
+) : ViewModel() {
 
-    private val repo = NoteRepository.get()
     private val notesDbLive = repo.getNotes()
     val notesLive = MediatorLiveData<List<NoteMinimal>>()
 

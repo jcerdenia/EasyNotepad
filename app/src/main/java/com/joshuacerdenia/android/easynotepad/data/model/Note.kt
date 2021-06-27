@@ -21,4 +21,22 @@ data class Note(
     fun toMinimal(): NoteMinimal {
         return NoteMinimal(id, category, title, lastModified)
     }
+
+    // For testing only; delete later.
+    fun dummy() {
+        title = listOf(
+            "This is a note",
+            "This is another note",
+            "Obviously a note",
+            "Notes on nothing",
+            "Here's a note"
+        ).shuffled().first()
+        category = listOf(
+            "English",
+            "Thoughts",
+            "Nothings",
+            "Science",
+            "Philosophy"
+        ).shuffled().first()
+    }
 }

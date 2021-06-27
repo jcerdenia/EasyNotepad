@@ -75,25 +75,34 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
         viewModel.selectedNoteIDsLive.observe(viewLifecycleOwner, { noteIDs ->
             adapter.selectedItems = noteIDs
-            if (noteIDs.size < adapter.currentList.size) {
-                binding.selectAllCheckbox.isChecked = false
+            // Update checkboxes:
+            when (noteIDs.size){
+                0 -> {
+                    binding.selectAllCheckbox.isChecked = false
+                    adapter.toggleCheckBoxes(false)
+                }
+                in 1 until adapter.itemCount -> {
+                    binding.selectAllCheckbox.isChecked = false
+                }
+                adapter.itemCount -> {
+                    binding.selectAllCheckbox.isChecked = true
+                    adapter.toggleCheckBoxes(true)
+                }
             }
         })
 
         binding.selectAllCheckbox.setOnClickListener { checkBox ->
             if ((checkBox as CheckBox).isChecked) {
-                val currentNoteIDs = adapter.currentList.map { it.id }
-                viewModel.replaceSelectedItems(currentNoteIDs)
-                adapter.toggleCheckBoxes(true)
+                val noteIDs = adapter.currentList.map { it.id }
+                viewModel.replaceSelectedItems(noteIDs)
             } else {
                 viewModel.clearSelectedItems()
-                adapter.toggleCheckBoxes(false)
             }
         }
 
         binding.fab.setOnClickListener {
             val note = Note() // Create blank note.
-            note.title = "Test" // Delete later.
+            note.dummy() // Delete later.
             viewModel.addNote(note)
             // TODO: open note
             // callbacks?.onNoteSelected(note.id)
@@ -153,6 +162,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
             }
             R.id.menu_item_delete -> {
                 viewModel.deleteSelectedItems()
+                viewModel.setIsManaging(false)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -184,14 +194,14 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
     companion object {

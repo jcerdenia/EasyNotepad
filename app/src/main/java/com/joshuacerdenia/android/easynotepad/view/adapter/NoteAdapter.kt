@@ -29,14 +29,14 @@ class NoteAdapter(
         fun onNoteCheckBoxClicked(noteID: UUID, isChecked: Boolean)
     }
 
-    var selectedItems: Set<UUID> = setOf()
-
     private val checkBoxes = mutableSetOf<CheckBox>()
     var shouldShowCheckBoxes: Boolean = false
         set(value) {
             field = value
             checkBoxes.forEach { it.setVisibility(value) }
         }
+
+    var selectedItems: Set<UUID> = setOf()
 
     fun toggleCheckBoxes(isChecked: Boolean) {
         checkBoxes.forEach { it.isChecked = isChecked }
@@ -45,15 +45,21 @@ class NoteAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemNoteBinding.inflate(inflater, parent, false)
-        return NoteHolder(binding)
+        checkBoxes.add(binding.editCheckBox)
+        return NoteHolder(context, binding, listener)
     }
 
     override fun onBindViewHolder(holder: NoteHolder, position: Int) {
-        holder.bind(getItem(position))
+        val note = getItem(position)
+        val isChecked = selectedItems.contains(note.id)
+        holder.bind(note, shouldShowCheckBoxes, isChecked)
     }
 
-    inner class NoteHolder(private val binding: ListItemNoteBinding) :
-        RecyclerView.ViewHolder(binding.root),
+    class NoteHolder(
+        private val context: Context,
+        private val binding: ListItemNoteBinding,
+        private val listener: EventListener
+    ) : RecyclerView.ViewHolder(binding.root),
         View.OnClickListener,
         View.OnLongClickListener {
 
@@ -64,7 +70,7 @@ class NoteAdapter(
             itemView.setOnLongClickListener(this)
         }
 
-        fun bind(note: NoteMinimal) {
+        fun bind(note: NoteMinimal, isCheckBoxVisible: Boolean, isChecked: Boolean) {
             noteID = note.id
             binding.titleTextView.text = note.title
             binding.categoryTextView.text = note.category.run {
@@ -82,9 +88,8 @@ class NoteAdapter(
             }
 
             binding.editCheckBox.apply {
-                setVisibility(shouldShowCheckBoxes)
-                isChecked = selectedItems.contains(note.id)
-                checkBoxes.add(this)
+                setVisibility(isCheckBoxVisible)
+                this.isChecked = isChecked
                 setOnClickListener {
                     listener.onNoteCheckBoxClicked(note.id, this.isChecked)
                 }
@@ -113,6 +118,7 @@ class NoteAdapter(
     }
 
     companion object {
+
         private const val TAG = "NoteAdapter"
     }
 }
