@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.CheckBox
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.*
@@ -13,6 +12,7 @@ import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteListBinding
 import com.joshuacerdenia.android.easynotepad.extension.setVisibility
+import com.joshuacerdenia.android.easynotepad.view.OnToolbarInflated
 import com.joshuacerdenia.android.easynotepad.view.adapter.NoteAdapter
 import com.joshuacerdenia.android.easynotepad.view.dialog.*
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteListViewModel
@@ -21,11 +21,9 @@ import java.util.*
 
 class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
-    interface Callbacks {
+    interface Callbacks : OnToolbarInflated {
 
         fun onNoteSelected(noteID: UUID, query: String? = null)
-
-        fun onToolbarInflated(toolbar: Toolbar)
     }
 
     private var _binding: FragmentNoteListBinding? = null
@@ -104,8 +102,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
             val note = Note() // Create blank note.
             note.dummy() // Delete later.
             viewModel.addNote(note)
-            // TODO: open note
-            // callbacks?.onNoteSelected(note.id)
+            callbacks?.onNoteSelected(note.id)
         }
     }
 
@@ -170,7 +167,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
     }
 
     override fun onNoteClicked(noteID: UUID) {
-        // TODO
+        callbacks?.onNoteSelected(noteID)
     }
 
     override fun onNoteLongClicked(noteID: UUID) {

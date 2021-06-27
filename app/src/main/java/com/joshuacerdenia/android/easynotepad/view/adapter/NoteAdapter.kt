@@ -29,14 +29,14 @@ class NoteAdapter(
         fun onNoteCheckBoxClicked(noteID: UUID, isChecked: Boolean)
     }
 
+    var selectedItems: Set<UUID> = setOf()
     private val checkBoxes = mutableSetOf<CheckBox>()
+
     var shouldShowCheckBoxes: Boolean = false
         set(value) {
             field = value
             checkBoxes.forEach { it.setVisibility(value) }
         }
-
-    var selectedItems: Set<UUID> = setOf()
 
     fun toggleCheckBoxes(isChecked: Boolean) {
         checkBoxes.forEach { it.isChecked = isChecked }
@@ -115,10 +115,5 @@ class NoteAdapter(
         override fun areContentsTheSame(oldItem: NoteMinimal, newItem: NoteMinimal): Boolean {
             return oldItem.isSameAs(newItem)
         }
-    }
-
-    companion object {
-
-        private const val TAG = "NoteAdapter"
     }
 }

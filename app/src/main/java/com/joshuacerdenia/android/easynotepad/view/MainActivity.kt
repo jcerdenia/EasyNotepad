@@ -37,8 +37,9 @@ class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
             .commit()
     }
 
-    override fun onToolbarInflated(toolbar: Toolbar) {
+    override fun onToolbarInflated(toolbar: Toolbar, isNavigableUp: Boolean) {
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(isNavigableUp)
     }
 
     override fun onBackPressed() {

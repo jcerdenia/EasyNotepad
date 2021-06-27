@@ -12,7 +12,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ToolbarTheme"
         app:title="@string/edit_note" />
@@ -24,7 +23,7 @@
         android:layout_height="match_parent">
 
         <AutoCompleteTextView
-            android:id="@+id/note_category"
+            android:id="@+id/category_text_view"
             android:maxLength="45"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +36,7 @@
             tools:text="Category" />
 
         <EditText
-            android:id="@+id/note_title"
+            android:id="@+id/title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -48,11 +47,11 @@
             android:maxLength="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/note_category"
+            app:layout_constraintTop_toBottomOf="@+id/category_text_view"
             tools:text="Title"/>
 
         <EditText
-            android:id="@+id/note_body"
+            android:id="@+id/body_text_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:ems="10"
@@ -61,23 +60,23 @@
             tools:text="Note body"
             android:importantForAutofill="no"
             android:hint="@string/write_note_here"
-            app:layout_constraintBottom_toTopOf="@+id/note_last_modified"
+            app:layout_constraintBottom_toTopOf="@+id/last_modified_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/note_title"/>
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view"/>
 
         <TextView
-            android:id="@+id/note_last_modified"
+            android:id="@+id/last_modified_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             tools:text="Last modified"
             android:textAlignment="textEnd"
-            app:layout_constraintBottom_toTopOf="@id/note_date_created"
+            app:layout_constraintBottom_toTopOf="@id/created_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/note_date_created"
+            android:id="@+id/created_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             tools:text="Created"

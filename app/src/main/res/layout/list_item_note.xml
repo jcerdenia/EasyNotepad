@@ -15,14 +15,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:padding="8dp">
+        android:paddingVertical="8dp">
 
         <TextView
             android:id="@+id/category_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginHorizontal="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/edit_check_box"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,9 +32,9 @@
             android:id="@+id/title_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             android:textSize="18sp"
+            android:layout_marginHorizontal="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/edit_check_box"
             app:layout_constraintTop_toBottomOf="@+id/category_text_view"
@@ -44,8 +44,8 @@
             android:id="@+id/date_time_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:maxLength="60"
+            android:layout_marginHorizontal="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/edit_check_box"
             app:layout_constraintTop_toBottomOf="@+id/title_text_view"
@@ -53,8 +53,9 @@
 
         <CheckBox
             android:id="@+id/edit_check_box"
-            android:layout_width="30dp"
-            android:layout_height="34dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:visibility="gone"

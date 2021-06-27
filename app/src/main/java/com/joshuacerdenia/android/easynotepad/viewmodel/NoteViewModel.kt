@@ -8,28 +8,27 @@ import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import java.util.*
 
-class NoteViewModel : ViewModel() {
-    
-    private val noteRepository = NoteRepository.get()
-    private val noteIDLiveData = MutableLiveData<UUID>() // Stores and publishes noteID from DB
+class NoteViewModel(
+    private val repo: NoteRepository = NoteRepository.get()
+) : ViewModel() {
 
-    var noteLiveData: LiveData<Note?> =
-        Transformations.switchMap(noteIDLiveData) { // Changing noteID triggers new DB query
-                noteID -> noteRepository.getNote(noteID)
-        }
+    private val noteIDLive = MutableLiveData<UUID>()
+    var noteLive: LiveData<Note?> = Transformations
+        .switchMap(noteIDLive) { noteID -> repo.getNote(noteID) }
 
-    var noteBeforeChanged: Note = Note()
-    var notYetCopied: Boolean = true
-
-    fun loadNote(noteID: UUID) {
-        noteIDLiveData.value = noteID
+    fun getNote(noteID: UUID) {
+        noteIDLive.value = noteID
     }
 
-    fun saveNote(note: Note) {
-        noteRepository.updateNote(note)
+    fun saveCopy() {
+        // TODO
+    }
+
+    fun updateNote(note: Note) {
+        repo.updateNote(note)
     }
 
     fun deleteNote(note: Note) {
-        noteRepository.deleteNote(note)
+        repo.deleteNote(note)
     }
 }
