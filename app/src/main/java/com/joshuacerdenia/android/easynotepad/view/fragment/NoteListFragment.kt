@@ -89,6 +89,10 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
             }
         })
 
+        binding.toolbar.setOnClickListener {
+            binding.recyclerView.smoothScrollToPosition(0)
+        }
+
         binding.selectAllCheckbox.setOnClickListener { checkBox ->
             if ((checkBox as CheckBox).isChecked) {
                 val noteIDs = adapter.currentList.map { it.id }
@@ -167,7 +171,9 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
     }
 
     override fun onNoteClicked(noteID: UUID) {
-        callbacks?.onNoteSelected(noteID)
+        if (!viewModel.isManaging()) {
+            callbacks?.onNoteSelected(noteID)
+        }
     }
 
     override fun onNoteLongClicked(noteID: UUID) {
@@ -202,6 +208,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
     }
 
     companion object {
+
         private const val TAG = "NoteListFragment"
         private const val HAS_TEXT_INTENT = "HAS_TEXT_INTENT"
 

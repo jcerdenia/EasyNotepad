@@ -25,7 +25,9 @@ class NoteListViewModel(
 
     init {
         notesLive.addSource(notesDbLive) { notes ->
-            notesLive.value = notes.map { it.toMinimal() }
+            notesLive.value = notes
+                .map { it.toMinimal() }
+                .sortedByDescending { it.lastModified }
         }
     }
 

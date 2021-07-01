@@ -13,19 +13,23 @@ class NoteViewModel(
 ) : ViewModel() {
 
     private val noteIDLive = MutableLiveData<UUID>()
-    var noteLive: LiveData<Note?> = Transformations
+
+    val noteLive: LiveData<Note?> = Transformations
         .switchMap(noteIDLive) { noteID -> repo.getNote(noteID) }
 
-    fun getNote(noteID: UUID) {
+    private val noteBeforeUpdate get() = noteLive.value
+
+    fun getNoteByID(noteID: UUID) {
         noteIDLive.value = noteID
     }
 
-    fun saveCopy() {
-        // TODO
-    }
-
-    fun updateNote(note: Note) {
-        repo.updateNote(note)
+    fun save(category: String, title: String, body: String) {
+        noteBeforeUpdate?.let { note ->
+            if (note.isContentChanged(category, title, body)) {
+                note.update(category, title, body)
+                repo.updateNote(note)
+            }
+        }
     }
 
     fun deleteNote(note: Note) {

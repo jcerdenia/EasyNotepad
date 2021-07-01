@@ -23,7 +23,7 @@
         android:layout_height="match_parent">
 
         <AutoCompleteTextView
-            android:id="@+id/category_text_view"
+            android:id="@+id/category_edit_text"
             android:maxLength="45"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             tools:text="Category" />
 
         <EditText
-            android:id="@+id/title_text_view"
+            android:id="@+id/title_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -47,11 +47,11 @@
             android:maxLength="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/category_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/category_edit_text"
             tools:text="Title"/>
 
         <EditText
-            android:id="@+id/body_text_view"
+            android:id="@+id/body_edit_text"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:ems="10"
@@ -63,7 +63,7 @@
             app:layout_constraintBottom_toTopOf="@+id/last_modified_text_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title_text_view"/>
+            app:layout_constraintTop_toBottomOf="@+id/title_edit_text"/>
 
         <TextView
             android:id="@+id/last_modified_text_view"

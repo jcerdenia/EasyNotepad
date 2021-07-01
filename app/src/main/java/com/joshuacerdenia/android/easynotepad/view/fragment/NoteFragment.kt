@@ -4,16 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteBinding
 import com.joshuacerdenia.android.easynotepad.extension.toEditable
 import com.joshuacerdenia.android.easynotepad.view.OnToolbarInflated
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteViewModel
+import java.text.DateFormat
 import java.util.*
 
 class NoteFragment : Fragment() {
@@ -32,10 +32,11 @@ class NoteFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        // Get Note ID from arguments.
+        // Get Note ID from arguments and
+        // use it to retrieve note contents.
         arguments?.getString(NOTE_ID)
             .run { UUID.fromString(this) }
-            .run { viewModel.getNote(this) }
+            .run { viewModel.getNoteByID(this) }
     }
 
     override fun onCreateView(
@@ -44,50 +45,70 @@ class NoteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNoteBinding.inflate(inflater, container, false)
+        callbacks?.onToolbarInflated(binding.toolbar, true)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.noteLive.observe(viewLifecycleOwner, { data ->
-            data?.let { note ->
-                viewModel.saveCopy()
-                updateUI(note)
-            }
+        viewModel.noteLive.observe(viewLifecycleOwner, { note ->
+            note?.let { updateUI(it) }
         })
     }
 
     private fun updateUI(note: Note) {
-        binding.categoryTextView.text = note.category.toEditable()
-        binding.titleTextView.text = note.title.toEditable()
-        binding.bodyTextView.text = note.body.toEditable()
-        binding.lastModifiedTextView.text = note.lastModified.toString()
+        binding.categoryEditText.text = note.category.toEditable()
+        binding.titleEditText.text = note.title.toEditable()
+        binding.bodyEditText.text = note.body.toEditable()
+
+        binding.lastModifiedTextView.text = getString(R.string.last_updated_withDate, DateFormat
+            .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+            .format(note.lastModified))
+
+        binding.createdTextView.text = getString(R.string.created_withDate, DateFormat
+            .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+            .format(note.dateCreated))
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_note, menu)
+    }
+
+    override fun onStop() {
+        val category = binding.categoryEditText.text.toString()
+        val title = binding.titleEditText.text.toString()
+        val body = binding.bodyEditText.text.toString()
+        viewModel.save(category, title, body)
+        super.onStop()
     }
 
     companion object {
 
         private const val NOTE_ID = "note_ID"
         private const val QUERY = "query"
-        private const val ARG_INTENT = "arg_intent"
+        private const val INTENT = "intent"
+
+        private const val CATEGORY = "category"
+        private const val TITLE = "title"
+        private const val BODY = "body"
 
         fun newInstance(noteID: UUID, query: String?): NoteFragment {
-            val args = Bundle().apply {
-                putString(NOTE_ID, noteID.toString())
-                putString(QUERY, query)
-            }
             return NoteFragment().apply {
-                arguments = args
+                arguments = Bundle().apply {
+                    putString(NOTE_ID, noteID.toString())
+                    putString(QUERY, query)
+                }
             }
         }
 
         fun newInstance(noteID: UUID, intent: Intent): NoteFragment {
-            val args = Bundle().apply {
-                putString(NOTE_ID, noteID.toString())
-                putParcelable(ARG_INTENT, intent as Parcelable)
-            }
             return NoteFragment().apply {
-                arguments = args
+                arguments = Bundle().apply {
+                    putString(NOTE_ID, noteID.toString())
+                    putParcelable(INTENT, intent as Parcelable)
+                }
             }
         }
     }
