@@ -4,9 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.joshuacerdenia.android.easynotepad.data.NotePreferences
 import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.data.model.NoteMinimal
+import com.joshuacerdenia.android.easynotepad.extension.sortedBy
 import java.util.*
 
 class NoteListViewModel(
@@ -23,12 +25,19 @@ class NoteListViewModel(
     private val _selectedNoteIDsLive = MutableLiveData<Set<UUID>>()
     val selectedNoteIDsLive: LiveData<Set<UUID>> get() = _selectedNoteIDsLive
 
+    var order = NotePreferences.order
+        private set
+
     init {
         notesLive.addSource(notesDbLive) { notes ->
             notesLive.value = notes
+                .sortedBy(order)
                 .map { it.toMinimal() }
-                .sortedByDescending { it.lastModified }
         }
+    }
+
+    fun isManaging(): Boolean {
+        return _isManagingLive.value ?: false
     }
 
     fun setIsManaging(isManaging: Boolean) {
@@ -36,16 +45,11 @@ class NoteListViewModel(
         if (!isManaging) clearSelectedItems()
     }
 
-    fun isManaging(): Boolean {
-        return _isManagingLive.value ?: false
-    }
-
-    fun addNote(note: Note) {
-        repo.addNote(note)
-    }
-
-    fun deleteSelectedItems() {
-        repo.deleteNotesByID(selectedNoteIDs.toList())
+    fun sortNotes(order: Int) {
+        this.order = order
+        notesLive.value = notesDbLive.value
+            ?.sortedBy(order)
+            ?.map { it.toMinimal() }
     }
 
     fun replaceSelectedItems(noteIDs: List<UUID>) {
@@ -67,5 +71,13 @@ class NoteListViewModel(
     fun clearSelectedItems() {
         selectedNoteIDs.clear()
         _selectedNoteIDsLive.value = selectedNoteIDs
+    }
+
+    fun addNote(note: Note) {
+        repo.addNote(note)
+    }
+
+    fun deleteSelectedItems() {
+        repo.deleteNotesByID(selectedNoteIDs.toList())
     }
 }

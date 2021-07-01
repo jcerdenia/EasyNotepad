@@ -9,6 +9,7 @@
     <string name="note_list_info">%1$s / %2$s</string>
     <string name="no_category">Uncategorized</string>
     <string name="sort">Sort</string>
+    <string name="sort_by">Sort by</string>
     <string name="edit">Edit</string>
     <string name="confirm_delete">"Delete %s? "</string>
     <string name="search">Search</string>
@@ -20,4 +21,7 @@
     <string name="empty">No notes</string>
     <string name="select_all">Select All</string>
     <string name="share">Share</string>
+    <string name="last_updated">Last Updated</string>
+    <string name="date_created">Date Created</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -108,6 +108,13 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
             viewModel.addNote(note)
             callbacks?.onNoteSelected(note.id)
         }
+
+        parentFragmentManager.setFragmentResultListener(
+            SortNotesFragment.ORDER,
+            viewLifecycleOwner,
+            { key, result ->
+                result.getInt(key).run { viewModel.sortNotes(this) }
+            })
     }
 
     private fun updateUI(isManaging: Boolean) {
@@ -156,9 +163,9 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
                 true
             }
             R.id.menu_item_sort -> {
-                NoteListSorterFragment
-                    .newInstance("CHANGE LATER")
-                    .show(parentFragmentManager, "sort")
+                SortNotesFragment
+                    .newInstance(viewModel.order)
+                    .show(parentFragmentManager, SortNotesFragment.TAG)
                 true
             }
             R.id.menu_item_delete -> {

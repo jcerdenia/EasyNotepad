@@ -7,7 +7,7 @@ data class NoteMinimal(
     val id: UUID,
     val category: String,
     val title: String,
-    val lastModified: Date
+    val lastModified: Date,
 ) {
 
     fun isSameAs(note: NoteMinimal): Boolean {

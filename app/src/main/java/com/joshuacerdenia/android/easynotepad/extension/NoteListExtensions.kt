@@ -1,13 +1,15 @@
 package com.joshuacerdenia.android.easynotepad.extension
 
+import com.joshuacerdenia.android.easynotepad.ORDER_CATEGORY
+import com.joshuacerdenia.android.easynotepad.ORDER_DATE_CREATED
+import com.joshuacerdenia.android.easynotepad.ORDER_TITLE
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 
-fun List<Note>.sortedByLastModified() = this.sortedByDescending{ it.lastModified }
-
-fun List<Note>.sortedByDateCreated() = this.sortedByDescending { it.dateCreated }
-
-fun List<Note>.sortedByCategory() = this.sortedBy{ it.category }
-
-fun List<Note>.sortedByTitle() = this.sortedBy{ it.title }
-
-fun List<Note>.toMinimal() = this.map { it.toMinimal() }
+fun List<Note>.sortedBy(order: Int): List<Note> {
+    return when (order) {
+        ORDER_DATE_CREATED -> this.sortedBy { it.dateCreated }
+        ORDER_CATEGORY -> this.sortedBy { it.category }
+        ORDER_TITLE -> this.sortedBy { it.title }
+        else -> this.sortedBy { it.lastModified }
+    }
+}
