@@ -4,53 +4,46 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.joshuacerdenia.android.easynotepad.R
 
-private const val ARG_NUMBER = "arg_number"
-
 class ConfirmDeleteFragment : DialogFragment() {
-
-    companion object {
-        fun newInstance(number: Int): ConfirmDeleteFragment {
-            val args = Bundle().apply {
-                putInt(ARG_NUMBER, number)
-            }
-            return ConfirmDeleteFragment().apply {
-                arguments = args
-            }
-        }
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val number = arguments?.getInt(ARG_NUMBER)
-        val whatToDelete = if (number == 1) {
-            "note"
-        } else {
-            "$number notes"
-        }
+        val number = arguments?.getInt(NUMBER) ?: 0
+        val whatToDelete = resources.getQuantityString(R.plurals.notes, number, number)
 
-        val dialogBuilder = AlertDialog.Builder(requireContext())
-        dialogBuilder
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.confirm_delete, whatToDelete))
             .setMessage(getString(R.string.no_undo))
             .setCancelable(true)
-            .setPositiveButton("Yes") { dialog, _ ->
-                targetFragment?.let { fragment ->
-                    (fragment as Callbacks).onDeleteConfirmed()
-                }
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
+                setFragmentResult(CONFIRM_DELETE, Bundle().apply {
+                    putBoolean(CONFIRM_DELETE, true)
+                })
                 dialog.dismiss()
             }
-            .setNegativeButton("No") { dialog, _ -> dialog.cancel() }
+            .setNegativeButton(getString(R.string.no)) { dialog, _ -> dialog.cancel() }
+            .create()
 
-        val dialog = dialogBuilder.create()
         dialog.show()
-
         return dialog
     }
 
-    interface Callbacks {
-        fun onDeleteConfirmed()
+    companion object {
+
+        const val TAG = "ConfirmDeleteFragment"
+        const val CONFIRM_DELETE = "confirm_delete"
+        private const val NUMBER = "number"
+
+        fun newInstance(number: Int): ConfirmDeleteFragment {
+            return ConfirmDeleteFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(NUMBER, number)
+                }
+            }
+        }
     }
 }

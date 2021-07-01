@@ -16,7 +16,7 @@
     <string name="no_undo">This cannot be undone.</string>
     <string name="delete">Delete</string>
     <string name="edit_note">Edit Note</string>
-    <string name="nothing_selected">Nothing selected</string>
+    <string name="nothing_selected">Nothing selected.</string>
     <string name="send_note">Send note via</string>
     <string name="empty">No notes</string>
     <string name="select_all">Select All</string>
@@ -24,4 +24,11 @@
     <string name="last_updated">Last Updated</string>
     <string name="date_created">Date Created</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <plurals name="notes">
+        <item quantity="one">note</item>
+        <item quantity="other">%d notes</item>
+    </plurals>
 </resources>

@@ -24,8 +24,10 @@ class NoteListViewModel(
     private var selectedNoteIDs = mutableSetOf<UUID>()
     private val _selectedNoteIDsLive = MutableLiveData<Set<UUID>>()
     val selectedNoteIDsLive: LiveData<Set<UUID>> get() = _selectedNoteIDsLive
+    val selectedItemCount get() = selectedNoteIDs.size
 
-    var order = NotePreferences.order
+    var order = 0
+        get() = NotePreferences.order
         private set
 
     init {
@@ -36,9 +38,7 @@ class NoteListViewModel(
         }
     }
 
-    fun isManaging(): Boolean {
-        return _isManagingLive.value ?: false
-    }
+    fun isManaging(): Boolean = _isManagingLive.value ?: false
 
     fun setIsManaging(isManaging: Boolean) {
         _isManagingLive.value = isManaging
@@ -46,7 +46,7 @@ class NoteListViewModel(
     }
 
     fun sortNotes(order: Int) {
-        this.order = order
+        NotePreferences.order = order
         notesLive.value = notesDbLive.value
             ?.sortedBy(order)
             ?.map { it.toMinimal() }
@@ -79,5 +79,6 @@ class NoteListViewModel(
 
     fun deleteSelectedItems() {
         repo.deleteNotesByID(selectedNoteIDs.toList())
+        clearSelectedItems()
     }
 }

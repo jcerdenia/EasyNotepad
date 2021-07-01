@@ -8,6 +8,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.*
+import com.google.android.material.snackbar.Snackbar
 import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteListBinding
@@ -104,7 +105,6 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
         binding.fab.setOnClickListener {
             val note = Note() // Create blank note.
-            note.dummy() // Delete later.
             viewModel.addNote(note)
             callbacks?.onNoteSelected(note.id)
         }
@@ -114,6 +114,14 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
             viewLifecycleOwner,
             { key, result ->
                 result.getInt(key).run { viewModel.sortNotes(this) }
+            })
+
+        parentFragmentManager.setFragmentResultListener(
+            ConfirmDeleteFragment.CONFIRM_DELETE,
+            viewLifecycleOwner,
+            { key, result ->
+                val isConfirmed = result.getBoolean(key)
+                if (isConfirmed) viewModel.deleteSelectedItems()
             })
     }
 
@@ -158,23 +166,35 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_item_manage -> {
-                viewModel.setIsManaging(true)
-                true
-            }
-            R.id.menu_item_sort -> {
-                SortNotesFragment
-                    .newInstance(viewModel.order)
-                    .show(parentFragmentManager, SortNotesFragment.TAG)
-                true
-            }
-            R.id.menu_item_delete -> {
-                viewModel.deleteSelectedItems()
-                viewModel.setIsManaging(false)
-                true
-            }
+            R.id.menu_item_manage -> handleManageNotes()
+            R.id.menu_item_sort -> handleSortNotes()
+            R.id.menu_item_delete -> handleDeleteNotes()
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun handleManageNotes(): Boolean {
+        viewModel.setIsManaging(true)
+        return true
+    }
+
+    private fun handleSortNotes(): Boolean {
+        SortNotesFragment.newInstance(viewModel.order)
+            .show(parentFragmentManager, SortNotesFragment.TAG)
+        return true
+    }
+
+    private fun handleDeleteNotes(): Boolean {
+        if (viewModel.selectedItemCount > 0) {
+            ConfirmDeleteFragment.newInstance(viewModel.selectedItemCount)
+                .show(parentFragmentManager, ConfirmDeleteFragment.TAG)
+        } else {
+            Snackbar
+                .make(binding.root, getString(R.string.nothing_selected), Snackbar.LENGTH_SHORT)
+                .show()
+        }
+
+        return true
     }
 
     override fun onNoteClicked(noteID: UUID) {
