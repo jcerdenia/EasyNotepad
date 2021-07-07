@@ -32,22 +32,4 @@ data class Note(
     fun isContentChanged(category: String, title: String, body: String): Boolean {
         return this.category != category || this.title != title || this.body != body
     }
-
-    // For testing only; delete later.
-    fun dummy() {
-        title = listOf(
-            "This is a note",
-            "This is another note",
-            "Obviously a note",
-            "Notes on nothing",
-            "Here's a note"
-        ).shuffled().first()
-        category = listOf(
-            "English",
-            "Thoughts",
-            "Nothings",
-            "Science",
-            "Philosophy"
-        ).shuffled().first()
-    }
 }

@@ -52,25 +52,29 @@ class NoteListViewModel(
             ?.map { it.toMinimal() }
     }
 
+    private fun MutableLiveData<Set<UUID>>.update() {
+        this.value = selectedNoteIDs
+    }
+
     fun replaceSelectedItems(noteIDs: List<UUID>) {
         selectedNoteIDs.clear()
         selectedNoteIDs.addAll(noteIDs)
-        _selectedNoteIDsLive.value = selectedNoteIDs
+        _selectedNoteIDsLive.update()
     }
 
     fun addSelection(noteID: UUID) {
         selectedNoteIDs.add(noteID)
-        _selectedNoteIDsLive.value = selectedNoteIDs
+        _selectedNoteIDsLive.update()
     }
 
     fun removeSelection(noteID: UUID) {
         selectedNoteIDs.remove(noteID)
-        _selectedNoteIDsLive.value = selectedNoteIDs
+        _selectedNoteIDsLive.update()
     }
 
     fun clearSelectedItems() {
         selectedNoteIDs.clear()
-        _selectedNoteIDsLive.value = selectedNoteIDs
+        _selectedNoteIDsLive.update()
     }
 
     fun addNote(note: Note) {
@@ -78,7 +82,9 @@ class NoteListViewModel(
     }
 
     fun deleteSelectedItems() {
-        repo.deleteNotesByID(selectedNoteIDs.toList())
+        selectedNoteIDs
+            .toTypedArray()
+            .run { repo.deleteNotesByID(*this) }
         clearSelectedItems()
     }
 }

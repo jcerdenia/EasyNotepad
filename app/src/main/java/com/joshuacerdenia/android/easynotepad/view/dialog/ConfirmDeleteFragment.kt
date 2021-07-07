@@ -11,8 +11,7 @@ class ConfirmDeleteFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
-
-        val number = arguments?.getInt(NUMBER) ?: 0
+        val number = arguments?.getInt(NUMBER) ?: 1
         val whatToDelete = resources.getQuantityString(R.plurals.notes, number, number)
 
         val dialog = AlertDialog.Builder(requireContext())
@@ -38,7 +37,7 @@ class ConfirmDeleteFragment : DialogFragment() {
         const val CONFIRM_DELETE = "confirm_delete"
         private const val NUMBER = "number"
 
-        fun newInstance(number: Int): ConfirmDeleteFragment {
+        fun newInstance(number: Int = 1): ConfirmDeleteFragment {
             return ConfirmDeleteFragment().apply {
                 arguments = Bundle().apply {
                     putInt(NUMBER, number)

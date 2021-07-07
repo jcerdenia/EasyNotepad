@@ -67,9 +67,8 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         })
 
         viewModel.notesLive.observe(viewLifecycleOwner, { notes ->
-            binding.emptyTextView.setVisibility(notes.isEmpty())
-            binding.recyclerView.setVisibility(notes.isNotEmpty())
             adapter.submitList(notes)
+            binding.emptyTextView.setVisibility(notes.isEmpty())
         })
 
         viewModel.selectedNoteIDsLive.observe(viewLifecycleOwner, { noteIDs ->
@@ -239,7 +238,7 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         private const val TAG = "NoteListFragment"
         private const val HAS_TEXT_INTENT = "HAS_TEXT_INTENT"
 
-        fun newInstance(hasTextIntent: Boolean): NoteListFragment {
+        fun newInstance(hasTextIntent: Boolean = false): NoteListFragment {
             return NoteListFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(HAS_TEXT_INTENT, hasTextIntent)

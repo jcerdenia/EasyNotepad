@@ -1,7 +1,10 @@
 package com.joshuacerdenia.android.easynotepad.data.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import java.util.*
 
@@ -14,15 +17,12 @@ interface NoteDao {
     @Query("SELECT * FROM note")
     fun getNotes(): LiveData<List<Note>>
 
-    @Query("SELECT * FROM note WHERE id = (:id)")
-    fun getNote(id: UUID): LiveData<Note?>
+    @Query("SELECT * FROM note WHERE id = (:noteID)")
+    fun getNote(noteID: UUID): LiveData<Note?>
 
     @Update
     fun updateNote(note: Note)
 
-    @Delete
-    fun deleteNote(note: Note)
-
-    @Query("DELETE FROM note WHERE id IN (:ids)")
-    fun deleteNotesByID(ids: List<UUID>)
+    @Query("DELETE FROM note WHERE id IN (:noteID)")
+    fun deleteNotesByID(vararg noteID: UUID)
 }

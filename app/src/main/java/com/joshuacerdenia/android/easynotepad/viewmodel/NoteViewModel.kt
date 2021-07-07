@@ -23,16 +23,22 @@ class NoteViewModel(
         noteIDLive.value = noteID
     }
 
-    fun save(category: String, title: String, body: String) {
+    fun submitChanges(category: String, title: String, body: String) {
         noteBeforeUpdate?.let { note ->
             if (note.isContentChanged(category, title, body)) {
                 note.update(category, title, body)
-                repo.updateNote(note)
+                if (note.isEmpty()) {
+                    repo.deleteNotesByID(note.id)
+                } else {
+                    repo.updateNote(note)
+                }
             }
         }
     }
 
-    fun deleteNote(note: Note) {
-        repo.deleteNote(note)
+    fun deleteCurrentNote() {
+        noteIDLive.value?.let { noteID ->
+            repo.deleteNotesByID(noteID)
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteBinding
 import com.joshuacerdenia.android.easynotepad.extension.toEditable
 import com.joshuacerdenia.android.easynotepad.view.OnToolbarInflated
+import com.joshuacerdenia.android.easynotepad.view.dialog.ConfirmDeleteFragment
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteViewModel
 import java.text.DateFormat
 import java.util.*
@@ -22,11 +23,18 @@ class NoteFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: NoteViewModel by viewModels()
-    private var callbacks: OnToolbarInflated? = null
+    private var callbacks: Callbacks? = null
+
+    interface Callbacks : OnToolbarInflated {
+
+        fun onShareNotePressed(subject: String, text: String)
+
+        fun onNoteDeleted()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as OnToolbarInflated?
+        callbacks = context as Callbacks?
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +46,7 @@ class NoteFragment : Fragment() {
             .run { UUID.fromString(this) }
             .run { viewModel.getNoteByID(this) }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +64,18 @@ class NoteFragment : Fragment() {
         viewModel.noteLive.observe(viewLifecycleOwner, { note ->
             note?.let { updateUI(it) }
         })
+
+        parentFragmentManager.setFragmentResultListener(
+            ConfirmDeleteFragment.CONFIRM_DELETE,
+            viewLifecycleOwner,
+            { key, result ->
+                val isConfirmed = result.getBoolean(key)
+                if (isConfirmed) {
+                    viewModel.deleteCurrentNote()
+                    callbacks?.onNoteDeleted()
+                }
+            }
+        )
     }
 
     private fun updateUI(note: Note) {
@@ -76,13 +97,35 @@ class NoteFragment : Fragment() {
         inflater.inflate(R.menu.fragment_note, menu)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_item_share -> handleShareNote()
+            R.id.menu_item_delete -> handleDeleteNote()
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun handleShareNote(): Boolean {
+        callbacks?.onShareNotePressed(getTitle(), getBody())
+        return true
+    }
+
+    private fun handleDeleteNote(): Boolean {
+        ConfirmDeleteFragment.newInstance()
+            .show(parentFragmentManager, ConfirmDeleteFragment.TAG)
+        return true
+    }
+
     override fun onStop() {
-        val category = binding.categoryEditText.text.toString()
-        val title = binding.titleEditText.text.toString()
-        val body = binding.bodyEditText.text.toString()
-        viewModel.save(category, title, body)
+        viewModel.submitChanges(getCategory(), getTitle(), getBody())
         super.onStop()
     }
+
+    private fun getCategory(): String = binding.categoryEditText.text.toString()
+
+    private fun getTitle(): String = binding.titleEditText.text.toString()
+
+    private fun getBody(): String = binding.bodyEditText.text.toString()
 
     companion object {
 

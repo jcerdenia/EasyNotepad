@@ -22,13 +22,9 @@ class NoteRepository private constructor(db: NoteDatabase) {
     fun addNote(note: Note) {
         executor.execute { dao.addNote(note) }
     }
-    
-    fun deleteNote(note: Note) {
-        executor.execute { dao.deleteNote(note) }
-    }
 
-    fun deleteNotesByID(ids: List<UUID>) {
-        executor.execute { dao.deleteNotesByID(ids) }
+    fun deleteNotesByID(vararg noteID: UUID) {
+        executor.execute { dao.deleteNotesByID(*noteID) }
     }
 
     companion object {

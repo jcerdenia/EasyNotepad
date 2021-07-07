@@ -1,14 +1,18 @@
 package com.joshuacerdenia.android.easynotepad.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.databinding.ActivityMainBinding
 import com.joshuacerdenia.android.easynotepad.view.fragment.NoteFragment
 import com.joshuacerdenia.android.easynotepad.view.fragment.NoteListFragment
 import java.util.*
 
-class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
+class MainActivity : AppCompatActivity(),
+    NoteListFragment.Callbacks,
+    NoteFragment.Callbacks {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -34,6 +38,24 @@ class MainActivity : AppCompatActivity(), NoteListFragment.Callbacks {
             .beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
             .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onShareNotePressed(subject: String, text: String) {
+        Intent(Intent.ACTION_SEND)
+            .apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            .run { Intent.createChooser(this, getString(R.string.send_note)) }
+            .run { startActivity(this) }
+    }
+
+    override fun onNoteDeleted() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(binding.fragmentContainer.id, NoteListFragment.newInstance() )
             .commit()
     }
 
