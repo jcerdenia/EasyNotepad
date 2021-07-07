@@ -5,19 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteBinding
 import com.joshuacerdenia.android.easynotepad.extension.toEditable
+import com.joshuacerdenia.android.easynotepad.view.OnBackPressed
 import com.joshuacerdenia.android.easynotepad.view.OnToolbarInflated
 import com.joshuacerdenia.android.easynotepad.view.dialog.ConfirmDeleteFragment
 import com.joshuacerdenia.android.easynotepad.viewmodel.NoteViewModel
 import java.text.DateFormat
 import java.util.*
 
-class NoteFragment : Fragment() {
+class NoteFragment : Fragment(), OnBackPressed {
 
     private var _binding: FragmentNoteBinding? = null
     private val binding get() = _binding!!
@@ -113,6 +115,17 @@ class NoteFragment : Fragment() {
     private fun handleDeleteNote(): Boolean {
         ConfirmDeleteFragment.newInstance()
             .show(parentFragmentManager, ConfirmDeleteFragment.TAG)
+        return true
+    }
+
+    override fun handleBackPress(): Boolean {
+        try {
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.root.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         return true
     }
 

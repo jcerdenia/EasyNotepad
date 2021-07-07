@@ -66,11 +66,9 @@ class MainActivity : AppCompatActivity(),
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
-        if (fragment is NoteListFragment) {
+        if (fragment is OnBackPressed) {
             val isHandled = fragment.handleBackPress()
-            if (!isHandled) super.onBackPressed()
-        } else {
-            super.onBackPressed()
+            if (isHandled) super.onBackPressed()
         }
     }
 

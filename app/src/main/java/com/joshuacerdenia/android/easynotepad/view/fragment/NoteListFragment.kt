@@ -13,6 +13,7 @@ import com.joshuacerdenia.android.easynotepad.R
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.databinding.FragmentNoteListBinding
 import com.joshuacerdenia.android.easynotepad.extension.setVisibility
+import com.joshuacerdenia.android.easynotepad.view.OnBackPressed
 import com.joshuacerdenia.android.easynotepad.view.OnToolbarInflated
 import com.joshuacerdenia.android.easynotepad.view.adapter.NoteAdapter
 import com.joshuacerdenia.android.easynotepad.view.dialog.*
@@ -20,7 +21,7 @@ import com.joshuacerdenia.android.easynotepad.viewmodel.NoteListViewModel
 import java.text.DateFormat.*
 import java.util.*
 
-class NoteListFragment : Fragment(), NoteAdapter.EventListener {
+class NoteListFragment : Fragment(), OnBackPressed, NoteAdapter.EventListener {
 
     interface Callbacks : OnToolbarInflated {
 
@@ -214,12 +215,12 @@ class NoteListFragment : Fragment(), NoteAdapter.EventListener {
         }
     }
 
-    fun handleBackPress(): Boolean {
+    override fun handleBackPress(): Boolean {
         return if (viewModel.isManaging()) {
             viewModel.setIsManaging(false)
-            true
-        } else {
             false
+        } else {
+            true
         }
     }
 
