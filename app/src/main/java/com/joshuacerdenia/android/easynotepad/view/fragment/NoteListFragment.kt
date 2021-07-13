@@ -148,20 +148,20 @@ class NoteListFragment : Fragment(), OnBackPressed, NoteAdapter.EventListener {
         inflater.inflate(R.menu.fragment_note_list, menu)
         updateMenuItems(menu, viewModel.isManaging())
 
-        menu.findItem(R.id.menu_item_search).actionView?.apply {
-            this as SearchView
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    // TODO: Search notes
-                    return true
-                }
+        val searchItem = menu.findItem(R.id.menu_item_search)
+        val searchView = searchItem.actionView as SearchView
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    // TODO: Search notes
-                    return true
-                }
-            })
-        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.submitQuery(query ?: "")
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.submitQuery(newText ?: "")
+                return true
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -13,3 +13,13 @@ fun List<Note>.sortedBy(order: Int): List<Note> {
         else -> this.sortedByDescending { it.lastModified }
     }
 }
+
+fun List<Note>.queriedBy(_query: String): List<Note> {
+    if (_query.isEmpty()) return this
+    val query = _query.lowercase()
+    return this.filter { note ->
+        note.title.lowercase().contains(query)
+            || note.category.lowercase().contains(query)
+            || note.body.lowercase().contains(query)
+    }
+}

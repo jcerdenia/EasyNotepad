@@ -72,7 +72,11 @@ class NoteAdapter(
 
         fun bind(note: NoteMinimal, isCheckBoxVisible: Boolean, isChecked: Boolean) {
             noteID = note.id
-            binding.titleTextView.text = note.title
+
+            binding.titleTextView.text = note.title.run {
+                if (this.isNotEmpty()) this else context.getString(R.string.no_title)
+            }
+
             binding.categoryTextView.text = note.category.run {
                 if (this.isNotEmpty()) this else context.getString(R.string.no_category)
             }
@@ -101,7 +105,6 @@ class NoteAdapter(
         }
 
         override fun onLongClick(v: View?): Boolean {
-            //editCheckBox.isChecked = !editCheckBox.isChecked
             listener.onNoteLongClicked(noteID)
             return true
         }

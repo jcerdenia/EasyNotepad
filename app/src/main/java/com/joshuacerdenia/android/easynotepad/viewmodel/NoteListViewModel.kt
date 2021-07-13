@@ -8,6 +8,7 @@ import com.joshuacerdenia.android.easynotepad.data.NotePreferences
 import com.joshuacerdenia.android.easynotepad.data.NoteRepository
 import com.joshuacerdenia.android.easynotepad.data.model.Note
 import com.joshuacerdenia.android.easynotepad.data.model.NoteMinimal
+import com.joshuacerdenia.android.easynotepad.extension.queriedBy
 import com.joshuacerdenia.android.easynotepad.extension.sortedBy
 import java.util.*
 
@@ -30,12 +31,19 @@ class NoteListViewModel(
         get() = NotePreferences.order
         private set
 
+    private var query = ""
+
     init {
         notesLive.addSource(notesDbLive) { notes ->
-            notesLive.value = notes
-                .sortedBy(order)
-                .map { it.toMinimal() }
+            updateNoteList(notes)
         }
+    }
+
+    private fun updateNoteList(base: List<Note>) {
+        notesLive.value = base
+            .queriedBy(query)
+            .sortedBy(order)
+            .map { it.toMinimal() }
     }
 
     fun isManaging(): Boolean = _isManagingLive.value ?: false
@@ -47,9 +55,12 @@ class NoteListViewModel(
 
     fun sortNotes(order: Int) {
         NotePreferences.order = order
-        notesLive.value = notesDbLive.value
-            ?.sortedBy(order)
-            ?.map { it.toMinimal() }
+        notesDbLive.value?.let { updateNoteList(it) }
+    }
+
+    fun submitQuery(query: String) {
+        this.query = query
+        notesDbLive.value?.let { updateNoteList(it) }
     }
 
     private fun MutableLiveData<Set<UUID>>.update() {

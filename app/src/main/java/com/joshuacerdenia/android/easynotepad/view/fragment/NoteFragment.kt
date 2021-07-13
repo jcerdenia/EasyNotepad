@@ -119,14 +119,17 @@ class NoteFragment : Fragment(), OnBackPressed {
     }
 
     override fun handleBackPress(): Boolean {
+        hideSoftKeyboard()
+        return true
+    }
+
+    private fun hideSoftKeyboard() {
         try {
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.root.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-        return true
     }
 
     override fun onStop() {
